@@ -8,3 +8,6 @@ Novel methods for image classification using Topological Data Analysis.
 install.packages(c("TDAstats", "regtools", "pdist"))
 ```
 
+## Data
+* Download `mnist.csv` from `http://heather.cs.ucdavis.edu/mnist.csv`
+
