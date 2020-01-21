@@ -200,6 +200,48 @@ TDAsweepImgSet <- function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=NUL
    t(result)
 }
 
+# data prep:
+
+# prepImgSet():  inputs image collection matrix, one image per row, 
+#    an associated vector of class labels, the number of pixel rows in
+#    each image, and the threshold; outputs an R list, each element
+#    consisting of a pixels locations matrix, the index of the original
+#    image in the input data, and the class label; the matrix has pixels
+#    passing above the threshold, each pixel as an (row number,col
+#    number) pair
+
+# arguments:
+ 
+#    imgs: matrix or data frame of image data, one row per image
+#    nr: number of rows per image, cols stored in col-major order
+#    thresh: only pixels with intensity at least this value
+#       will be chosen
+ 
+# value:
+ 
+#    2-column matrix of (row,column) coordinates of the selected pixels
+
+prepImgSet <- function(imgs,nr,labels,thresh) 
+{
+   pOI <- function(oneImgRow) {
+      img2D <- imgTo2D(imgs[oneImgRow,],nr)
+      img <- prepOneImage(img2D,thresh)
+      list(img,oneImgRow,labels[oneImgRow])
+   }
+   imgs <- lapply(1:nrow(imgs),pOI)
+   list(imgs=imgs,thresh=thresh,nr=nr,labels=labels)
+}
+
+# img2D is output of imgTo2D() for a single image; nr, thresh as above
+
+prepOneImage <- function(img2D,thresh) 
+{
+   aboveThresh <- which(img2D[,3] >= thresh)
+   if (length(aboveThresh) < 2) returnImg <- NA
+   else returnImg <- img2D[aboveThresh,1:2,drop=FALSE]
+   returnImg
+}
+
 
 ### #######################  experiments  ###############################
 ### 
