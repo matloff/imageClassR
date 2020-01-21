@@ -1,0 +1,10 @@
+Package: tdaImage
+Version: 1.0.0
+Title: TDA Image Package
+Author: Norm Matloff, Eric Li, Matthew Donnelly
+Maintainer: Norm Matloff <matloff@cs.ucdavis.edu>
+Depends: R (>= 3.5.0),regtools
+License: GPL (>= 2)
+Description: Novel methods for image classification using Topological Data Analysis.
+URL: https://github.com/matloff/tdaImage
+BugReports: https://github.com/matloff/regtools/issues
