@@ -1,7 +1,4 @@
-
-# library(TDAstats)
 library(regtools)
-# library(pdist)
 
 # overview
 

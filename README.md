@@ -3,9 +3,9 @@
 Novel methods for image classification using Topological Data Analysis.
 
 ## Requirements
-* The required R packages can be installed using
+* The required R package can be installed using
 ```
-install.packages(c("TDAstats", "regtools", "pdist"))
+install.packages("regtools")
 ```
 
 ## Data
