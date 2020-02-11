@@ -1,7 +1,7 @@
 Package: tdaImage
 Version: 1.0.0
 Title: TDA Image Package
-Author: Norm Matloff, Eric Li, Matthew Donnelly
+Author: Norm Matloff (cre,aut), Matthew Donnelly (ctb)
 Maintainer: Norm Matloff <matloff@cs.ucdavis.edu>
 Depends: R (>= 3.5.0),regtools
 License: GPL (>= 2)
