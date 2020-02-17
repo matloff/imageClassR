@@ -1,7 +1,7 @@
 
 # data prep routines, not necessarily for TDAsweep
 
-
+######################  prepImgSet()  #################################
 
 # prepImgSet():  
 
@@ -41,7 +41,17 @@ prepImgSet <- function(imgs,nr,labels,thresh)
 }
 
 
-# img2D is output of regtools::imgTo2D() for a single image; nr, thresh as above
+######################  prepOneImage()  #################################
+
+# prepImgSet() above preps a whole set of images, calling prepOneImage
+# on each image
+
+# arguments:
+
+#   img2D: output of regtools::imgTo2D() for a single image; each 
+#          row is of form (row number,column number,intensity), storing
+#          information for a given pixel
+#   nr, thresh: as in prepImgSet() above
 
 prepOneImage <- function(img2D,thresh) 
 {
@@ -51,6 +61,7 @@ prepOneImage <- function(img2D,thresh)
    returnImg
 }
 
+### need to update the below, and place in pkg README.md
 
 ### #######################  experiments  ###############################
 ### 
