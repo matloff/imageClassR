@@ -1,7 +1,41 @@
 
 # TDAsweep routines; makes use of prep* in TDAprep
 
-###########################  TDAsweep  ##############################
+# main function is TDAsweepImgSet(), which operates on a set of images;
+# usage:  input a matrix of images, 1 image per row; apply prepImgSet();
+# feed output of latter into TDAsweepImgSet()
+
+
+######################  TDAsweepImgSet()  ##############################
+
+# applies the sweep to every image in the output of prepImgSet(), by
+# calling TDAsweepOneImg() on the $imgs component of each one
+
+# returns a matrix suitable to serve as "X" in your favorite prediction
+# method, e.g. logit, random forests, NNs
+
+# arguments:
+
+#   imgsPrepped: output from prepImgSet()
+#   nr:  number of rows in an image
+#   nc:  number of columns in an image
+#   valType:  type of return value, currently 'raw' or '1Dcells'; the
+#      former means the raw counts, not grouped into intervals, while 
+#      the latter means grouped
+#   intervalWidth:  as the name says, for the '1Dcells' case
+
+TDAsweepImgSet <- 
+   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=NULL) 
+{
+   sweepOneImg <- 
+      function(img) TDAsweepOneImg(img[[1]],nr=nr,nc=nc,
+         valType=valType,intervalWidth=intervalWidth)
+   result <- sapply(imgsPrepped$imgs,sweepOneImg)
+   t(result)
+}
+
+
+######################  TDAsweepOneImg()  ##############################
 
 # inputs an image in the form output by imgTo2D(), does horizontal,
 # vertical and diagonals sweeps, and outputs a vector of component counts
@@ -10,12 +44,12 @@
 
 # arguments:
 
-#    i2D:  output of imgTo2D(), with row number, column number,
+#    i2D:  output of regtools::imgTo2D(), with row number, column number,
 #       intensity for each one of a filtered set of pixels
-#    nr:  number of rows in the image
-#    nc:  number of columns in the image
-#    valType:  type of return value, currently 'raw' or '1Dcells'
-#    intervalWidth:  as the name says, for the '1Dcells' case
+#    nr:  as above
+#    nc:  as above
+#    valType:  as above
+#    intervalWidth:  as above
 
 # form of return value is specified via 'valType':  
 
@@ -168,20 +202,11 @@ findNumComps <- function(i2D,rowOrColOrDiag,startRowCol,nr,nc)
    } else {
       ray <- extractNESW(i2D,startRowCol,nr,nc) 
    }
+   # components in tmp start wherever a 0 is followed by a 1, or with a
+   # 1 on the left end
    rayLength <- length(ray)
    tmp <- ray
    tmp0 <- c(0,tmp)
-   sum(tmp - tmp0[-rayLength] == 1)
-}
-
-# applies the sweep to every image in the output of prepImgSet();
-# returns a matrix suitable to serve as "X" in a prediction model
-TDAsweepImgSet <- function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=NULL) 
-{
-   sweepOneImg <- 
-      function(img) TDAsweepOneImg(img[[1]],nr=nr,nc=nc,
-         valType=valType,intervalWidth=intervalWidth)
-   result <- sapply(imgsPrepped$imgs,sweepOneImg)
-   t(result)
+   sum(tmp - tmp0[-(rayLength+1)] == 1)
 }
 
