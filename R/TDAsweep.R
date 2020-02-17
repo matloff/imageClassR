@@ -1,5 +1,5 @@
 
-# TDAsweep routines; makes use of prep* in TDAmisc.R
+# TDAsweep routines; makes use of prep* in TDAprep
 
 ###########################  TDAsweep  ##############################
 
