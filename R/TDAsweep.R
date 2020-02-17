@@ -1,17 +1,5 @@
-library(regtools)
 
-# overview
-
-# data prep:
-
-# prepImgSet():  inputs image collection matrix, one image per row, 
-#    an associated vector of class labels, the number of pixel rows in
-#    each image, and the threshold; outputs an R list, each element
-#    consisting of a pixels locations matrix, the index of the original
-#    image in the input data, and the class label; the matrix has pixels
-#    passing above the threshold, each pixel as an (row number,col
-#    number) pair
-
+# TDAsweep routines; makes use of prep* in TDAmisc.R
 
 ###########################  TDAsweep  ##############################
 
@@ -196,86 +184,4 @@ TDAsweepImgSet <- function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=NUL
    result <- sapply(imgsPrepped$imgs,sweepOneImg)
    t(result)
 }
-
-# data prep:
-
-# prepImgSet():  inputs image collection matrix, one image per row, 
-#    an associated vector of class labels, the number of pixel rows in
-#    each image, and the threshold; outputs an R list, each element
-#    consisting of a pixels locations matrix, the index of the original
-#    image in the input data, and the class label; the matrix has pixels
-#    passing above the threshold, each pixel as an (row number,col
-#    number) pair
-
-# arguments:
- 
-#    imgs: matrix or data frame of image data, one row per image
-#    nr: number of rows per image, cols stored in col-major order
-#    thresh: only pixels with intensity at least this value
-#       will be chosen
- 
-# value:
- 
-#    2-column matrix of (row,column) coordinates of the selected pixels
-
-prepImgSet <- function(imgs,nr,labels,thresh) 
-{
-   pOI <- function(oneImgRow) {
-      img2D <- imgTo2D(imgs[oneImgRow,],nr)
-      img <- prepOneImage(img2D,thresh)
-      list(img,oneImgRow,labels[oneImgRow])
-   }
-   imgs <- lapply(1:nrow(imgs),pOI)
-   list(imgs=imgs,thresh=thresh,nr=nr,labels=labels)
-}
-
-# img2D is output of imgTo2D() for a single image; nr, thresh as above
-
-prepOneImage <- function(img2D,thresh) 
-{
-   aboveThresh <- which(img2D[,3] >= thresh)
-   if (length(aboveThresh) < 2) returnImg <- NA
-   else returnImg <- img2D[aboveThresh,1:2,drop=FALSE]
-   returnImg
-}
-
-
-### #######################  experiments  ###############################
-### 
-### expt1 <- function(n,w,iT) {
-###    prepForExpt('../TDA.tmp/MNIST.Save','mntrn',28,28,iT,n) 
-###    z <- TDAsweepImgSet(imgsPrepped,28,28,intervalWidth=w)
-###    zd <- as.data.frame(z) 
-###    lmout <- mvrlm(zd,trnLabels,'dig') 
-###    preds <- predict(lmout,zd) 
-###    preds <- apply(preds,1,which.max) - 1 
-###    print(mean(preds == trnLabels) )
-###    print(table(preds,trnLabels))
-### }
-### 
-### # MNIST; sample n for training, n for testing; bounds lt, rt for hist,
-### # bin width w; intensity threshold iT
-### expt2 <- function(n,lt,rt,w,iT) {
-###    load('../TDA.tmp/MNIST.Save')  # loads mntrn, mntst
-###    mntrn <- as.matrix(mntrn)
-###    colnames(mntrn) <- NULL 
-###    set.seed(9999)
-###    trnidxs <- sample(1:nrow(mntrn),n) 
-###    tstidxs <- setdiff(1:nrow(mntrn),trnidxs)
-###    mtr <- mntrn[trnidxs,-785]
-###    trlabels <- mntrn[trnidxs,785]
-###    mts <- mntrn[tstidxs,-785]
-###    imgsPrepped <- prepImgSet(mtr,28,trlabels,iT)  # allow for fainter images
-###    ihs <- imgsHomStat(imgsPrepped,lt,rt,w)
-###    mts <- mntrn[tstidxs,]
-###    counts <- NULL
-###    for (i in 1:250) {
-###       mtsi <- mts[i,]
-###       predi <- predict(ihs,mtsi[-785],10)
-###       # cat(predi,'  ',mtsi[785],'\n')
-###       counts <- rbind(counts,c(predi,mtsi[785]))
-###    }
-###    print(mean(counts[,1] == counts[,2]))
-###    print(table(data.frame(counts)))
-### }
 
