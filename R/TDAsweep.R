@@ -5,6 +5,53 @@
 # usage:  input a matrix of images, 1 image per row; apply prepImgSet();
 # feed output of latter into TDAsweepImgSet()
 
+# example:
+
+# 1-image "set" of images, each image 2x6 pixels
+
+# > imgEx <- rbind(c(0,0,1,0,1,1),c(1,0,1,0,0,1))
+# > imgEx
+#      [,1] [,2] [,3] [,4] [,5] [,6]
+# [1,]    0    0    1    0    1    1
+# [2,]    1    0    1    0    0    1
+# > lbls <- 2  # label for this image
+# > imgExMatrix <- matrix(c(imgEx[1,],imgEx[2,]),nrow=1)
+# > prepout <- prepImgSet(imgExMatrix,2,lbls,0.5)
+# > prepout
+# $imgs
+# $imgs[[1]]   1st image (of 1)
+# $imgs[[1]][[1]]  "img2D" form of that image, e.g. a 1 in row 1, col 5
+#        j
+# [1,] 2 1
+# [2,] 1 3
+# [3,] 2 3
+# [4,] 1 5
+# [5,] 1 6
+# [6,] 2 6
+# $imgs[[1]][[2]]  row number of image 1 in the original image matrix
+# [1] 1
+# $imgs[[1]][[3]]  label for this image
+# [1] 2
+# $thresh
+# [1] 0.5
+# $nr  number of rows in each image in the image set
+# [1] 2
+# $labels   labels for all images in this image set
+# [1] 2
+# component counts (rows, cols, 2 diags) for image 1
+# > TDAsweepOneImg(prepout[[1]][[1]][[1]],2,6)
+#  [1] 2 3 1 0 1 0 1 1 0 1 1 0 1 1 1 0 1 1 1 1 1 1
+# broken down:
+# row 1: 2
+# row 2: 2
+# col 1: 1
+# col 2: 0
+# col 3: 1
+# col 4: 0
+# col 5: 1
+# col 6: 1
+# NW-SE diag (note comment re order): 0 1 1 0 1 1 1
+# NE-SW diag (note comment re order): 0 1 1 1 1 1 1
 
 ######################  TDAsweepImgSet()  ##############################
 
@@ -25,7 +72,7 @@
 #   intervalWidth:  as the name says, for the '1Dcells' case
 
 TDAsweepImgSet <- 
-   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=NULL) 
+   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=1) 
 {
    sweepOneImg <- 
       function(img) TDAsweepOneImg(img[[1]],nr=nr,nc=nc,
@@ -51,15 +98,11 @@ TDAsweepImgSet <-
 #    valType:  as above
 #    intervalWidth:  as above
 
-# form of return value is specified via 'valType':  
+# value:
+#
+#    vector of component counts or mean counts, depending on 'valType'
 
-#    'raw':  component counts, unbinned 
-#    '1Dcells':  binned counts; e.g. for row counts, break [1,nr] into 
-#        intervals of width intervalWidth; find mean number of components 
-#        over the rows in an interval; return the means, one per
-#        interval
-
-TDAsweepOneImg <- function(i2D,nr,nc,valType='raw',intervalWidth=NULL) 
+TDAsweepOneImg <- function(i2D,nr,nc,valType='raw',intervalWidth=1) 
 {
    toIntervalMeans <- function(oneRCD) 
    {
