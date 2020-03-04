@@ -1,6 +1,6 @@
 library(regtools)
-source("./TDAsweep.R")
-source("./TDAprep.R")
+source("~/Downloads/tdaImage/R/TDAsweep.R")
+source("~/Downloads/tdaImage/R/TDAprep.R")
 
 # Updates:
 # 1. (tested) rbg handling done, assuming intake vector (24x24x3 will be 1x1728 vector)
@@ -59,3 +59,14 @@ tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE, thresh = 0, inte
   }
 }
 
+
+test_one_img <- function(imgset, labels, nr, nc, rgb=FALSE, thresh=0, intervalWidth=1) {
+  idx <- sample(1:nr, 1)
+  img2d <- imgTo2D(imgset[idx,], nr)
+  label <- labels[idx]
+  print(label)
+  print(matrix(img2d[,3], nr, nc))
+  res <- prepOneImage(img2d, thresh)
+  res <- TDAsweepOneImg(res, nr, nc)
+  return (res)
+}
