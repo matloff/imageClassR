@@ -1,6 +1,30 @@
 # tdaImage
 
-Novel methods for image classification using [Topological Data Analysis (TDA)](Slides.pdf). Using TDA, one is able to perform dimension reduction on a dataset to improve runtime of the analysis as well as to avoid the risk of overfitting. Dimension reduction in **tdaImage** is achieved by manipulating two variables, threshold and interval width.
+## Overview
+
+Novel methods for image classification using [Topological Data Analysis
+(TDA)](Slides.pdf). Using TDA in the image contenxt, one is able to
+perform dimension reduction on a dataset to improve runtime of the
+analysis as well as to avoid the risk of overfitting. 
+
+The typical pattern involved is:
+
+1.  Perform dimension reduction, by some means -- PCA, the 'C' in "CNN,"
+our **TDAsweep** presented here, etc.
+
+2.  Feed the results of 1) above into one's favorite machine learning
+    method, such as NNs, SVM, logit or random forests.
+
+A fast, non-iterative method for dimension reduction of images would be
+quite useful.
+
+## TDAsweep
+
+The featured method in this package of **TDAswep**.  It counts
+contiguous components, in horizontal, vertical and two diagonal
+directions
+
+There are two hyperparameters, threshold and interval width.
 
 The [**regtools** package](https://github.com/matloff/regtools) is required. 
 
