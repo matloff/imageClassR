@@ -1,2 +1,7 @@
 
+export(
+   tda_wrapper_func,
+   TDAsweepOneImg,TDAsweepImgSet,
+   prepOneImage,prepImgSet
+)
 
