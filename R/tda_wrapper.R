@@ -1,6 +1,3 @@
-library(regtools)
-source("~/Downloads/tdaImage/R/TDAsweep.R")
-source("~/Downloads/tdaImage/R/TDAprep.R")
 
 # Updates:
 # 1. (tested) rbg handling done, assuming intake vector (24x24x3 will be 1x1728 vector)

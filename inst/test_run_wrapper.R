@@ -10,8 +10,6 @@
 #   intervalWidth : type integer. width of each sweep
 #   resfilename   : file name to write results to
 
-source("~/Downloads/tdaImage/R/tda_wrapper.R")
-
 # User Init
 mnist <- read.csv("~/Downloads/mnist.csv")
 img <- mnist[, -785]
