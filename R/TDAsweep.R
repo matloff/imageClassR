@@ -180,6 +180,7 @@ extractRow <- function(i2D,startRowCol,nr,nc)
    startCol <- startRowCol[2]
    rayLength <- nc
    ray <- rep(0,rayLength)
+   if (class(i2D[,1]) != 'matrix') browser()
    rcPlaces <- i2D[which(i2D[,1] == startRow),2]
    ray[rcPlaces] <- 1
    ray
