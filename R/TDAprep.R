@@ -56,7 +56,8 @@ prepImgSet <- function(imgs,nr,labels,thresh)
 prepOneImage <- function(img2D,thresh) 
 {
    aboveThresh <- which(img2D[,3] >= thresh)
-   if (length(aboveThresh) < 2) returnImg <- NA
+   # if (length(aboveThresh) < 2) returnImg <- NA
+   if (length(aboveThresh) < 2) returnImg <- matrix(c(1,1),nrow=1)
    else returnImg <- img2D[aboveThresh,1:2,drop=FALSE]
    returnImg
 }

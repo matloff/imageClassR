@@ -17,7 +17,7 @@
 # intervalWidth: integer; interval width for each sweep
 
 tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE, 
-   thresh = 0, intervalWidth=1)
+   thresholds = 0, intervalWidth=1)
 {
    tdaOut <- NULL
    for (thresh in thresholds) {
