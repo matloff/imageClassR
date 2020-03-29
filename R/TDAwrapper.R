@@ -16,7 +16,7 @@
 # thresholds: integer vector; thresholds for pixels
 # intervalWidth: integer; interval width for each sweep
 
-tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE, 
+tda_wrapper_func <- function(images, labels=NULL, nr, nc , rgb=TRUE, 
    thresholds = 0, intervalWidth=1, rcOnly=TRUE)
 {
    tdaOut <- NULL

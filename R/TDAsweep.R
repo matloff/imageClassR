@@ -72,11 +72,11 @@
 #   intervalWidth:  as the name says, for the '1Dcells' case
 
 TDAsweepImgSet <- 
-   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=1) 
+   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=1,rcOnly=TRUE) 
 {
    sweepOneImg <- 
       function(img) TDAsweepOneImg(img[[1]],nr=nr,nc=nc,
-         valType=valType,intervalWidth=intervalWidth)
+         valType=valType,intervalWidth=intervalWidth,rcOnly=rcOnly)
    result <- sapply(imgsPrepped$imgs,sweepOneImg)
    t(result)
 }
@@ -97,32 +97,15 @@ TDAsweepImgSet <-
 #    nc:  as above
 #    valType:  as above
 #    intervalWidth:  as above
+#    rcOnly:  if TRUE, do not compute diagonals
 
 # value:
 #
 #    vector of component counts or mean counts, depending on 'valType'
 
-TDAsweepOneImg <- function(i2D,nr,nc,valType='raw',intervalWidth=1) 
+TDAsweepOneImg <- 
+   function(i2D,nr,nc,valType='raw',intervalWidth=1,rcOnly=TRUE) 
 {
-   toIntervalMeans <- function(oneRCD) 
-   {
-      l1rcd <- length(oneRCD)
-      leftEnds <- seq(1,l1rcd,intervalWidth)
-      rightEnds <- leftEnds + intervalWidth
-      m <- length(leftEnds)
-      rightEnds[m] <- rightEnds[m] + 1
-      tmp <- vector(length=m)
-      # could be speeded up but not worth it
-      for (i in 1:m) {
-         l <- leftEnds[i]
-         r <- rightEnds[i]
-         clr <- (oneRCD[l:(r-1)])
-         if (length(clr) == 0) mn <- 0 else
-            mn <- mean(clr,na.rm=TRUE)
-         tmp[i] <- mn
-      }
-      tmp
-   }
    
    tda <- NULL
 
@@ -132,39 +115,62 @@ TDAsweepOneImg <- function(i2D,nr,nc,valType='raw',intervalWidth=1)
    for (i in 1:nr) 
       counts <- c(counts,findNumComps(i2D,'row',c(i,1),nr,nc))
    if (valType == '1Dcells') 
-      counts <- toIntervalMeans(counts)
+      counts <- toIntervalMeans(counts,intervalWidth)
    tda <- c(tda,counts)
 
    counts <- NULL
    for (i in 1:nc) 
       counts <- c(counts,findNumComps(i2D,'col',c(1,i),nr,nc))
    if (valType == '1Dcells') 
-      counts <- toIntervalMeans(counts)
+      counts <- toIntervalMeans(counts,intervalWidth)
    tda <- c(tda,counts)
 
-   # for now, report all diags, even length 1
-
-   # NW to SE, from row 1; then from column 1
-   counts <- NULL
-   for (i in 1:nc) 
-      counts <- c(counts,findNumComps(i2D,'nwse',c(1,i),nr,nc))
-   for (i in 2:nr) 
-      counts <- c(counts,findNumComps(i2D,'nwse',c(i,1),nr,nc))
-   if (valType == '1Dcells') 
-      counts <- toIntervalMeans(counts)
-   tda <- c(tda,counts)
-
-   # NE to SW, from row 1; then from column nc
-   counts <- NULL
-   for (i in 1:nc) 
-      counts <- c(counts,findNumComps(i2D,'nesw',c(1,i),nr,nc))
-   for (i in 2:nr) 
-      counts <- c(counts,findNumComps(i2D,'nesw',c(i,nc),nr,nc))
-   if (valType == '1Dcells') 
-      counts <- toIntervalMeans(counts)
-   tda <- c(tda,counts)
+   if (!rcOnly) {
+   
+      # for now, report all diags, even length 1
+   
+      # NW to SE, from row 1; then from column 1
+      counts <- NULL
+      for (i in 1:nc) 
+         counts <- c(counts,findNumComps(i2D,'nwse',c(1,i),nr,nc))
+      for (i in 2:nr) 
+         counts <- c(counts,findNumComps(i2D,'nwse',c(i,1),nr,nc))
+      if (valType == '1Dcells') 
+         counts <- toIntervalMeans(counts,intervalWidth)
+      tda <- c(tda,counts)
+   
+      # NE to SW, from row 1; then from column nc
+      counts <- NULL
+      for (i in 1:nc) 
+         counts <- c(counts,findNumComps(i2D,'nesw',c(1,i),nr,nc))
+      for (i in 2:nr) 
+         counts <- c(counts,findNumComps(i2D,'nesw',c(i,nc),nr,nc))
+      if (valType == '1Dcells') 
+         counts <- toIntervalMeans(counts,intervalWidth)
+      tda <- c(tda,counts)
+   }
 
    tda
+}
+
+toIntervalMeans <- function(oneRCD,intervalWidth) 
+{
+   l1rcd <- length(oneRCD)
+   leftEnds <- seq(1,l1rcd,intervalWidth)
+   rightEnds <- leftEnds + intervalWidth - 1
+   m <- length(leftEnds)
+   ### rightEnds[m] <- rightEnds[m] + 1
+   tmp <- vector(length=m)
+   # could be speeded up but not worth it
+   for (i in 1:m) {
+      l <- leftEnds[i]
+      r <- rightEnds[i]
+      clr <- (oneRCD[l:(r-1)])
+      if (length(clr) == 0) mn <- 0 else
+         mn <- mean(clr,na.rm=TRUE)
+      tmp[i] <- mn
+   }
+   tmp
 }
 
 # in the extract*() functions, we'll refer to "rays," meaning either a
