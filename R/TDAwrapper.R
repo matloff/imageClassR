@@ -17,7 +17,7 @@
 # intervalWidth: integer; interval width for each sweep
 
 tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE, 
-   thresholds = 0, intervalWidth=1)
+   thresholds = 0, intervalWidth=1, rcOnly=TRUE)
 {
    tdaOut <- NULL
    for (thresh in thresholds) {
@@ -30,15 +30,19 @@ tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE,
          images_B = images_df[, (2*one_layer_size+1):(3*one_layer_size)]  
          # run TDA Sweep for R, G, and B layers
          tda_result_R <- tda_sweep(images=images_R, labels=labels, 
-            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth)
+            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth,
+            rcOnly=rcOnly)
          tda_result_G <- tda_sweep(images=images_G, labels=labels, 
-            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth)
+            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth,
+            rcOnly=rcOnly)
          tda_result_B <- tda_sweep(images=images_B, labels=labels, 
-            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth)
+            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth,
+            rcOnly=rcOnly)
          new_dataset <- cbind(tda_result_R, tda_result_G, tda_result_B)
       } else {  # greyscale
          tda_result <- tda_sweep(images=images_df, labels=labels, 
-            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth)
+            nr=nr, nc=nc, thresh=thresh, intervalWidth=intervalWidth,
+               rcOnly=rcOnly)
          new_dataset <- tda_result 
       }
       tdaOut <- cbind(tdaOut,new_dataset)
@@ -47,12 +51,13 @@ tda_wrapper_func <- function(images, labels, nr, nc , rgb=TRUE,
 }
 
 # basic pipeline function for tda-sweep in one set of images
-tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth)
+tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, rcOnly)
 {  
     img_pixels <- images
     labels <- labels
     prepImgs <- prepImgSet(img_pixels, nr=nr, labels=labels, thresh=thresh)
-    TDAsweepImgSet(prepImgs, nr=nr, nc=nc, intervalWidth=intervalWidth)
+    TDAsweepImgSet(prepImgs, nr=nr, nc=nc, intervalWidth=intervalWidth,
+       rcOnly=rcOnly)
 }
 
 test_one_img <- 
