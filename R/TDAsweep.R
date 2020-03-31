@@ -72,7 +72,7 @@
 #   intervalWidth:  as the name says, for the '1Dcells' case
 
 TDAsweepImgSet <- 
-   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=1,rcOnly=TRUE) 
+   function(imgsPrepped,nr,nc,valType='1Dcells',intervalWidth=1,rcOnly=FALSE) 
 {
    sweepOneImg <- 
       function(img) TDAsweepOneImg(img[[1]],nr=nr,nc=nc,
@@ -104,7 +104,7 @@ TDAsweepImgSet <-
 #    vector of component counts or mean counts, depending on 'valType'
 
 TDAsweepOneImg <- 
-   function(i2D,nr,nc,valType='raw',intervalWidth=1,rcOnly=TRUE) 
+   function(i2D,nr,nc,valType='raw',intervalWidth=1,rcOnly=FALSE) 
 {
    
    tda <- NULL
