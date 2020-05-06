@@ -1,32 +1,31 @@
-library(tdaImage)
+#library(tdaImage)
 library(doMC)
 library(caret)
 library(snedata)
 library(magick)
+library(partools)
 # make labels factors?
 # settings
 registerDoMC(cores=3)
 tc <- trainControl(method = "cv", number = 4, verboseIter = F, allowParallel = T)
 set.seed(10)
-
-edge_mnist[0,]
-
 # loading mnist dataset
-mnist <- read.csv("~/Downloads/mnist.csv")
-rotate <- function(x) t(apply(x, 2, rev))
-edge_detect <- function(img){
-  dim(img) <- c(28,28,1)
-  img_mag <- magick::image_read(img/ 255) %>% magick::image_scale("28x28") 
-  img_mag <- img_mag %>% image_quantize(colorspace = "gray")
-  edge_img <- img_mag %>% image_convolve('Sobel') %>% image_negate()
-  print(edge_img)
-  edge_img <- as.matrix(as.integer(image_data(edge_img)))  # already flatten
-  return(edge_img)
-}
-
-edge_mnist <- apply(mnist[,-1], 1, edge_detect)
-edge_mnist <- rotate(edge_mnist)
-edge_mnist <- cbind(edge_mnist, mnist[, 785])
+#mnist <- read.csv("~/Downloads/mnist.csv")
+fashion_mnist <- read.csv("~/Downloads/fashionmnist/fashion-mnist_train.csv")
+# rotate <- function(x) t(apply(x, 2, rev))
+# edge_detect <- function(img){
+#   dim(img) <- c(28,28,1)
+#   img_mag <- magick::image_read(img/ 255) %>% magick::image_scale("28x28") 
+#   img_mag <- img_mag %>% image_quantize(colorspace = "gray")
+#   edge_img <- img_mag %>% image_convolve('Sobel') %>% image_negate()
+#   print(edge_img)
+#   edge_img <- as.matrix(as.integer(image_data(edge_img)))  # already flatten
+#   return(edge_img)
+# }
+# 
+# edge_mnist <- apply(mnist[,-1], 1, edge_detect)
+# edge_mnist <- rotate(edge_mnist)
+# edge_mnist <- cbind(edge_mnist, mnist[, 785])
 
 
 # loading fashion mnist dataset
@@ -40,15 +39,15 @@ edge_mnist <- cbind(edge_mnist, mnist[, 785])
 # train_y_true <- cifar[train_idx, 3073]
 # test_set <- cifar[-train_idx, -3073]
 # test_y_true <- cifar[-train_idx, 3073]
-edge_mnist <- as.data.frame(edge_mnist)
+fashion_mnist <- as.data.frame(fashion_mnist)
 # train-test split
-sample_n <- sample(nrow(edge_mnist))
-edge_mnist <- edge_mnist[sample_n, ]
-edge_mnist$V785 <- as.factor(edge_mnist$V785)
-train_set <- edge_mnist[1:65000, -785]  # exclude label if doing tda
-train_y_true <- edge_mnist[1:65000, 785]
-test_set <- edge_mnist[65001:70000, -785]
-test_y_true <- edge_mnist[65001:70000, 785]
+sample_n <- sample(nrow(fashion_mnist))
+fashion_mnist <- fashion_mnist[sample_n, ]
+fashion_mnist$label <- as.factor(fashion_mnist$label)
+train_set <- fashion_mnist[1:55000, ]  # exclude label if doing tda
+train_y_true <- fashion_mnist[1:55000, 1]
+test_set <- fashion_mnist[55001:60000, -1]
+test_y_true <- fashion_mnist[55001:60000, 1]
 
 
 # levels(train_y_true)
@@ -92,6 +91,14 @@ tda_test <- tda_test_set[, -167]
 # tda on whole set: 0.9706 accuracy (tda interval=3) 58
 # 95% CI : (0.968, 0.973)
 
+
+# FASHION MNIST
+# tda on whole set: 89.6% accuracy (interval=2, thresh=100) 85
+# 95% CI : (0.8872, 0.9043)
+# Time (svm train) : user   system  elapsed 
+#                 20878.050   698.096  9177.334 
+
+
 # MNIST V2
 
 # whole set: 97.9% accuracy
@@ -119,15 +126,27 @@ tda_test <- tda_test_set[, -167]
 #               3044.832  217.805 1464.373 
 
 
+
+# Fashion Mnist
+# tda on whole set: Accuracy : 0.8308 (interval=1, thresh=(100))         
+# 95% CI : (0.8201, 0.8411)
+# Time (tda train set): user   system  elapsed 
+#                   4468.885    2.7    4472.015 
+# Time (tda test set): user  system elapsed 
+#                   413.078   0.752  413.851
+# Time (svm train): user   system  elapsed 
+#               7035.283   406.805    3127.865
+
+
+
+
 # training and predicting svm model (with tda)
-system.time(svm_model <- train(labels ~., data=tda_train_set, method="svmRadial", trControl=tc))
-predict <- predict(svm_model, newdata = tda_test)
+system.time(svm_model <- train(label ~., data=train_set, method="svmRadial", trControl=tc))
+predict <- predict(svm_model, newdata = test_set)
 
 
 # CV
-confusionMatrix(as.factor(predict), as.factor(tda_test_label))
-
-
+confusionMatrix(as.factor(predict), as.factor(test_y_true))
 
 
 
