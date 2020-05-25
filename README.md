@@ -160,7 +160,7 @@ TDAsweep(…, cls=cls,…)
 
 The results of running TDAsweep on the MNIST dataset before classification was very encouraging. We were able to achieve ~78.8% feature reduction in exchange for less than 1% accuracy loss. As a result, the runtime of training the Support Vector Machine was drastically decreased.
 
-![alt text](https://github.com/matloff/tdaImage/tree/tdapar/table.png)
+![alt text](https://github.com/matloff/tdaImage/blob/tdapar/table.png)
 
     (Table 1. Speed Comparison of SVM before and after TDAsweep)
 
