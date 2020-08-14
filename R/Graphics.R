@@ -1,4 +1,5 @@
 
+
 plotTDA <- function(tdaout,labelsToPlot) 
 {
    nColTdaout <- ncol(tdaout)
@@ -6,6 +7,7 @@ plotTDA <- function(tdaout,labelsToPlot)
    # nCompCounts is the number of TDAsweep counts, vertical, horizonal,
    # diagonal
    labels <- tdaout[,nColTdaout]
+
    labelGroups <- split(1:nrow(tdaout),labels)
    nLabels <- length(labelGroups)
 
@@ -22,6 +24,7 @@ plotTDA <- function(tdaout,labelsToPlot)
    clm <- colmeans[-(nCompCounts+1),]  # remove labels
    maxCount <- max(clm)
    x <- 1:nCompCounts
+
    # plot first label
    lbl1 <- labelsToPlot[1]
    if (length(labelsToPlot) > 1) {
