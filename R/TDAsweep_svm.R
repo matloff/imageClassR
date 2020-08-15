@@ -1,4 +1,4 @@
-library(tdaImage)
+# library(tdaImage)
 library(doMC)
 library(caret)
 library(snedata)
