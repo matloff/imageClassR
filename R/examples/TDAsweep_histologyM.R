@@ -6,7 +6,7 @@ library(liquidSVM)
 
 
 # ------- loading histology-mnist (28x28) -------- #
-histology_mnist_28 <- read.csv("~/Downloads/54223_103778_bundle_archive/hmnist_28_28_L.csv")
+histology_mnist_28 <- read.csv("54223_103778_bundle_archive/hmnist_28_28_L.csv")
 
 # ------- pre-processing for histology-mnist(28x28) ------- #
 histology_mnist_28 <- as.data.frame(histology_mnist_28)

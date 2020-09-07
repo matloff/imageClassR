@@ -4,7 +4,7 @@ library(caret)
 
 
 #---- data preparation ----#
-mnist <- read.csv("~/Downloads/mnist.csv")
+mnist <- read.csv("mnist.csv")
 sample_n <- sample(nrow(mnist))
 mnist <- mnist[sample_n, ]
 mnist$y <- as.factor(mnist$y)
