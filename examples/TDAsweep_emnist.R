@@ -1,7 +1,4 @@
 library(tdaImage)
-library(doMC)
-library(caret)
-library(partools)
 library(liquidSVM)
 
 TDAsweep_demo_emnist <- function(){
@@ -31,7 +28,7 @@ tda_test <- tda_test_set[, -333]
 
 
 # ------- SVM ------- #
-svm_model <- train(labels ~., data=tda_train_set, method="svmRadial", trControl=tc)
+svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 
 # ------- Evaluate Model -------#

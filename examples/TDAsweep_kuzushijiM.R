@@ -1,7 +1,4 @@
 library(tdaImage)
-library(doMC)
-library(caret)
-library(partools)
 library(liquidSVM)
 
 
@@ -57,7 +54,7 @@ tda_test <- tda_test_set[, -333]  # remove label column for test set
 
 
 # ------- SVM ------- #
-system.time(svm_model <- train(labels ~., data=tda_train_set, method="svmRadial", trControl=tc))
+svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 # CV
 confusionMatrix(as.factor(predict), as.factor(tda_test_label))

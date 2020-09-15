@@ -1,7 +1,4 @@
 library(tdaImage)
-library(doMC)
-library(caret)
-library(partools)
 library(liquidSVM)
 
 
@@ -13,7 +10,8 @@ histology_mnist_28 <- read.csv("54223_103778_bundle_archive/hmnist_28_28_L.csv")
 # ------- pre-processing for histology-mnist(28x28) ------- #
 histology_mnist_28 <- as.data.frame(histology_mnist_28)
 histology_mnist_28$label <- as.factor(histology_mnist_28$label)
-train_idx <- createDataPartition(histology_mnist_28$label, p = 0.8, list = FALSE)
+set.seed(1)
+train_idx <- sample(seq_len(nrow(histology_mnist_28)), 0.8*nrow(histology_mnist_28))
 train_set <- histology_mnist_28[train_idx, -785]  # exclude label if doing tda
 train_y_true <- histology_mnist_28[train_idx, 785]
 test_set <- histology_mnist_28[-train_idx, -785]
@@ -31,7 +29,7 @@ tda_test_label <- tda_test_set$labels
 tda_test <- tda_test_set[, -333]
 
 # ------- SVM ------- #
-system.time(svm_model <- train(labels ~., data=tda_train_set, method="svmRadial", trControl=tc))
+svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 # CV
 confusionMatrix(as.factor(predict), as.factor(tda_test_label))
@@ -45,7 +43,8 @@ TDAsweep_demo_hmnist64 <- function(){
 # ------- pre-processing for histology-mnist(64x64) ------- #
 histology_mnist_64 <- as.data.frame(histology_mnist_64)
 histology_mnist_64$label <- as.factor(histology_mnist_64$label)
-train_idx <- createDataPartition(histology_mnist_64$label, p = 0.8, list = FALSE)
+set.seed(1)
+train_idx <- sample(seq_len(nrow(histology_mnist_64)), 0.8*nrow(histology_mnist_64))
 train_set <- histology_mnist_64[train_idx, -4097]  # exclude label if doing tda
 train_y_true <- histology_mnist_64[train_idx, 4097]
 test_set <- histology_mnist_64[-train_idx, -4097]
@@ -76,7 +75,7 @@ tda_test <- tda_test_set[, -765]  # remove label column for test set
 
 
 # ------- SVM ------- #
-svm_model <- train(labels ~., data=tda_train_set, method="svmRadial", trControl=tc)
+svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 # CV
 confusionMatrix(as.factor(predict), as.factor(tda_test_label))
