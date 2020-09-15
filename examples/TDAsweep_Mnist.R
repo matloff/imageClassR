@@ -2,13 +2,13 @@ library(tdaImage)
 library(doMC)
 library(caret)
 
-
+TDAsweep_demo_mnist <- function(){
 #---- data preparation ----#
 mnist <- read.csv("mnist.csv")
 sample_n <- sample(nrow(mnist))
 mnist <- mnist[sample_n, ]
 mnist$y <- as.factor(mnist$y)
-trainIndex = createDataPartition(mnist$y, p=0.7, list=FALSE)
+trainIndex = createDataPartition(mnist$y, p=0.8, list=FALSE)
 train_set <- mnist[trainIndex, -785]  # exclude label if doing tda
 train_y_true <- mnist[trainIndex, 785]
 test_set <- mnist[-trainIndex, -785]
@@ -46,4 +46,6 @@ predict <- predict(svm_model, newdata=tda_test)
 
 #---- Evaluation ----#
 confusionMatrix(as.factor(predict), as.factor(tda_test_label))
+
+}
 

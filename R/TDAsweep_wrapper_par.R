@@ -1,5 +1,3 @@
-source("~/Downloads/tdaImage/R/TDAprep.R")
-source("~/Downloads/tdaImage/R/TDAsweep.R")
 library(partools)
 
 # --- parameters --- #
