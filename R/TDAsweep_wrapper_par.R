@@ -8,13 +8,16 @@ library(partools)
 # rgb: bool.; TRUE if images are RGB, otherwise greyscale
 # thresholds: integer vector; thresholds for pixels
 # intervalWidth: integer; interval width for each sweep
+# cls: integer; how many clusters for parallel. No parallel if NULL
+# prep: bool; are the images already in prep format
+# rcOnly: bool; sweep row and column only
 
 TDAsweep <- function(images, labels, nr, nc , rgb=TRUE, 
-                                 thresholds = 0, intervalWidth=1, cls, prep=FALSE, rcOnly=FALSE)
+                                 thresholds = 0, intervalWidth=1, cls=NULL, prep=FALSE, rcOnly=FALSE)
 {
-  if(is.null(cls)){  # default cluster
+  if(!is.null(cls)){  # default cluster
     print("creating custers...")
-    cls <- makeCluster(4)
+    cls <- makeCluster(cls)
   }
   tdaOut <- NULL
   for (thresh in thresholds) {
@@ -55,68 +58,81 @@ TDAsweep <- function(images, labels, nr, nc , rgb=TRUE,
 # basic pipeline function for tda-sweep in one set of images
 tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, rcOnly)
 {  
-  core_num = dim(as.matrix(setclsinfo(cls)))[1]
-  img_pixels <- images
-  labels <- labels
-  
-  if(prep == FALSE){
-    print('starting to prep...')
-    setclsinfo(cls)
-    clusterExport(cls, varlist=c('nr', 'thresh'), envir=environment())
-    distribsplit(cls, 'img_pixels')
-    distribsplit(cls, 'labels')
-    clusterEvalQ(cls, source('~/Downloads/tdaImage/R/TDAprep.R'))
-    print(system.time(res <- clusterEvalQ(cls, res <-
-                                            prepImgSet(
-                                              img_pixels, nr=nr, labels=labels, thresh=thresh))))
-    res <- do.call('rbind', res)
-    prepImgs <- res[1,]
-    for(i in 2:core_num){
-      prepImgs <- addlists(prepImgs, res[i,], c)
+  if(!is.null(cls)){  # cls!=NULL. start parallel
+    core_num = dim(as.matrix(setclsinfo(cls)))[1]
+    img_pixels <- images
+    labels <- labels
+    
+    if(prep == FALSE){
+      print('starting to prep...')
+      setclsinfo(cls)
+      clusterExport(cls, varlist=c('nr', 'thresh'), envir=environment())
+      distribsplit(cls, 'img_pixels')
+      distribsplit(cls, 'labels')
+      clusterEvalQ(cls, source('TDAprep.R'))
+      print(system.time(res <- clusterEvalQ(cls, res <-
+                                              prepImgSet(
+                                                img_pixels, nr=nr, labels=labels, thresh=thresh))))
+      res <- do.call('rbind', res)
+      prepImgs <- res[1,]
+      for(i in 2:core_num){
+        prepImgs <- addlists(prepImgs, res[i,], c)
+      }
+      prepImgs$thresh = thresh
+      prepImgs$nr = nr
+      # print(system.time(prepImgs_nopar <- prepImgSet(img_pixels, nr=nr, labels=labels, thresh=thresh)))
     }
-    prepImgs$thresh = thresh
-    prepImgs$nr = nr
-    # print(system.time(prepImgs_nopar <- prepImgSet(img_pixels, nr=nr, labels=labels, thresh=thresh)))
+    else{
+      prepImgs <- images
+    }
+    
+    print("starting sweep...")
+    # sweep par
+    setclsinfo(cls)
+    imgsPerNode <- ceiling(nrow(img_pixels)/core_num)
+    clusterExport(cls, varlist=c('nr', 'nc', 'intervalWidth', 'rcOnly')
+                  , envir=environment())
+    temp <- list()
+    prepImgs_split <- list()
+    for(i in 1:core_num){
+      temp$imgs <- prepImgs$imgs[(imgsPerNode*(i-1)+1):(imgsPerNode*i)]
+      temp$thresh <- prepImgs$thresh[1]
+      temp$nr <- prepImgs$nr[1]
+      temp$labels <- prepImgs$labels[(imgsPerNode*(i-1)+1):(imgsPerNode*i)]
+      prepImgs_split[i] <- list(temp)
+    }
+    clusterApply(cls, prepImgs_split, function(x){prepImgs_node <<- x; NULL})
+    clusterEvalQ(cls, source("TDAsweep.R"))
+    
+    print(system.time(res <- clusterEvalQ(cls, res <-
+                                            TDAsweepImgSet(
+                                              prepImgs_node, nr=nr, nc=nc,
+                                              intervalWidth=intervalWidth, rcOnly=rcOnly))))  # prepImgs_node not found??
+    result <- do.call("rbind", res)  # combine results accross all clusters
+    return(result)
+  } else{  # cls=NULL. No parallel
+    img_pixels <- images
+    labels <- labels 
+    if(prep == FALSE){  # if need prep
+      print("starting prep...")
+      prepImgs <- prepImgSet(img_pixels, nr=nr, labels=labels, thresh=thresh)
+    } else{
+      prepImgs <- images
+    }
+    print("starting sweep...")
+    result <- TDAsweepImgSet(prepImgs, nr=nr, nc=nc, intervalWidth=intervalWidth,
+                   rcOnly=rcOnly)
+    return(result)
   }
-  else{
-    prepImgs <- images
-  }
-  
-  print("starting sweep...")
-  # sweep par
-  setclsinfo(cls)
-  imgsPerNode <- ceiling(nrow(img_pixels)/core_num)
-  clusterExport(cls, varlist=c('nr', 'nc', 'intervalWidth', 'rcOnly')
-                , envir=environment())
-  temp <- list()
-  prepImgs_split <- list()
-  for(i in 1:core_num){
-    temp$imgs <- prepImgs$imgs[(imgsPerNode*(i-1)+1):(imgsPerNode*i)]
-    temp$thresh <- prepImgs$thresh[1]
-    temp$nr <- prepImgs$nr[1]
-    temp$labels <- prepImgs$labels[(imgsPerNode*(i-1)+1):(imgsPerNode*i)]
-    prepImgs_split[i] <- list(temp)
-  }
-  clusterApply(cls, prepImgs_split, function(x){prepImgs_node <<- x; NULL})
-  clusterEvalQ(cls, source("~/Downloads/tdaImage/R/TDAsweep.R"))
-  
-  print(system.time(res <- clusterEvalQ(cls, res <-
-                                          TDAsweepImgSet(
-                                            prepImgs_node, nr=nr, nc=nc,
-                                            intervalWidth=intervalWidth, rcOnly=rcOnly))))  # prepImgs_node not found??
-  result <- do.call("rbind", res)  # combine results accross all clusters
-  return(result)
   # print(system.time(new_set <- TDAsweepImgSet(prepImgs_nopar, nr=nr, nc=nc, intervalWidth=intervalWidth,
   #                                             rcOnly=rcOnly)))
   # print(result == new_set)
 }
 
-
-
 ########### small test #############
-# mnist <- read.csv("~/Downloads/mnist.csv")  # just testing. No need to shuffle
-# mnist$y <- as.factor(mnist$y)
-# train_set <- mnist[1:100, -785]  # exclude label if doing tda
-# train_y_true <- mnist[1:100, 785]
-# a <- TDAsweep(train_set, train_y_true, 28, 28, F, 
-#                       c(100),  intervalWidth=1, cls=NULL, prep=F)
+mnist <- read.csv("~/Downloads/mnist_train.csv")  # just testing. No need to shuffle
+mnist$label <- as.factor(mnist$label)
+train_set <- mnist[1:100, -1]  # exclude label if doing tda
+train_y_true <- mnist[1:100, 1]
+a <- TDAsweep(train_set, train_y_true, 28, 28, F,
+                      c(100),  intervalWidth=1, cls=NULL, prep=F)

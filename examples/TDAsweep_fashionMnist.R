@@ -18,15 +18,15 @@ test_y_true <- fashion_mnist[-train_idx, 1]
 
 # ------- TDA Sweep ------- #
 # sweep for train set. change parameter as needed
-tda_train_set <- TDAsweep(train_set, train_y_true, nr=28, nc=28, rgb=TRUE, thresh=c(25, 100), intervalWidth = 1)
+tda_train_set <- TDAsweep(train_set, train_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1)
 tda_train_set <- as.data.frame(tda_train_set$tda_df)
 tda_train_set$labels <- as.factor(tda_train_set$labels)
 
 # sweep for test set. change parameter as needed
-tda_test_set <- TDAsweep(test_set, test_y_true, nr=28, nc=28, rgb=TRUE, thresh=c(25, 100), intervalWidth = 1)
+tda_test_set <- TDAsweep(test_set, test_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1)
 tda_test_set <- as.data.frame(tda_test_set$tda_df)
 tda_test_label <- tda_test_set$labels
-tda_test <- tda_test_set[, -997]  # remove label column for generated test set
+tda_test <- tda_test_set[, -333]  # remove label column for generated test set
 
 
 # ------- SVM ------- #
