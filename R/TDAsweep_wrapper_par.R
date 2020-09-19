@@ -130,9 +130,9 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
 }
 
 ########### small test #############
-mnist <- read.csv("~/Downloads/mnist_train.csv")  # just testing. No need to shuffle
-mnist$label <- as.factor(mnist$label)
-train_set <- mnist[1:100, -1]  # exclude label if doing tda
-train_y_true <- mnist[1:100, 1]
-a <- TDAsweep(train_set, train_y_true, 28, 28, F,
-                      c(100),  intervalWidth=1, cls=NULL, prep=F)
+# mnist <- read.csv("~/Downloads/mnist_train.csv")  # just testing. No need to shuffle
+# mnist$label <- as.factor(mnist$label)
+# train_set <- mnist[1:100, -1]  # exclude label if doing tda
+# train_y_true <- mnist[1:100, 1]
+# a <- TDAsweep(train_set, train_y_true, 28, 28, F,
+#                       c(100),  intervalWidth=1, cls=NULL, prep=F)
