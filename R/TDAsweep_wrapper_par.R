@@ -70,9 +70,8 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
       distribsplit(cls, 'img_pixels')
       distribsplit(cls, 'labels')
       clusterEvalQ(cls, source('TDAprep.R'))
-      print(system.time(res <- clusterEvalQ(cls, res <-
-                                              prepImgSet(
-                                                img_pixels, nr=nr, labels=labels, thresh=thresh))))
+      res <- clusterEvalQ(cls, res <- prepImgSet(img_pixels, nr=nr,
+                                                 labels=labels, thresh=thresh))
       res <- do.call('rbind', res)
       prepImgs <- res[1,]
       for(i in 2:core_num){
@@ -104,10 +103,8 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
     clusterApply(cls, prepImgs_split, function(x){prepImgs_node <<- x; NULL})
     clusterEvalQ(cls, source("TDAsweep.R"))
     
-    print(system.time(res <- clusterEvalQ(cls, res <-
-                                            TDAsweepImgSet(
-                                              prepImgs_node, nr=nr, nc=nc,
-                                              intervalWidth=intervalWidth, rcOnly=rcOnly))))  # prepImgs_node not found??
+    res <- clusterEvalQ(cls, res <- TDAsweepImgSet( prepImgs_node, nr=nr, nc=nc,
+                                                      intervalWidth=intervalWidth, rcOnly=rcOnly))  # prepImgs_node not found??
     result <- do.call("rbind", res)  # combine results accross all clusters
     return(result)
   } else{  # cls=NULL. No parallel
