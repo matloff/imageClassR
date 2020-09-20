@@ -51,7 +51,7 @@ tda_wrapper_func <- function(images, labels=NULL, nr, nc , rgb=TRUE,
 }
 
 # basic pipeline function for tda-sweep in one set of images
-tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, rcOnly)
+tda_sweep_old <- function(images, labels, nr, nc, thresh, intervalWidth, rcOnly)
 {  
     img_pixels <- images
     labels <- labels
