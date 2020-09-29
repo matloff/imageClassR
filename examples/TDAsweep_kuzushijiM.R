@@ -16,7 +16,7 @@ library(liquidSVM)
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 # IN THE SOFTWARE.
 
-load_image_file = function(filename) {
+load_image_file = function(filename) {  # function for extracting dataset from Brendan
   ret = list()
   f = file(filename, 'rb')
   readBin(f, 'integer', n = 1, size = 4, endian = 'big')
@@ -29,7 +29,7 @@ load_image_file = function(filename) {
 }
 
 # load label files
-load_label_file = function(filename) {
+load_label_file = function(filename) {  # function for extracting dataset from Brendan
   f = file(filename, 'rb')
   readBin(f, 'integer', n = 1, size = 4, endian = 'big')
   n = readBin(f, 'integer', n = 1, size = 4, endian = 'big')

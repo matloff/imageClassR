@@ -54,9 +54,9 @@ tda_wrapper_func(images, labels, nr, nc, rgb=TRUE, thresholds=0 , intervalWidth=
 * `rgb`: TRUE if rgb image is used. FALSE otherwise.
 * `thresholds`: the minimum pixel intensity to be included in each sweep. 
 * `intervalWidth`: should be set to an integer greater than 1 to achieve dimension reduction. Represent this many rows by taking the mean of them.
-* `cls`: self-defined clusters for parallelization. Uses half of the total available cores of the local machine by default.
+* `cls`: self-defined number of clusters to use for parallelization. If not specified, TDAsweep will default to no parallelization.
 * `prep`: TRUE if prepImgSet has already be run on the image dataset to avoid redundancy in code. FALSE otherwise.
-* `rcOnly`: 
+* `rcOnly`: TRUE if the user wish to only sweep row and column directions. FALSE otherwise.
 
 
 The return value of **tda_wrapper_func()** is a list of number of components in row, column, and diagonals.
@@ -66,19 +66,18 @@ This example uses the [MNIST dataset](http://heather.cs.ucdavis.edu/mnist.csv) a
 
 ```R
 library(tdaImage)
-library(doMC)
-library(caret)
+library(e1071)  # standard e1071 SVM
+library(liquidSVM)  # load if using liquidSVM to train
 
 #---- data preparation ----#
-mnist <- read.csv("~/Downloads/mnist.csv")
-sample_n <- sample(nrow(mnist))
-mnist <- mnist[sample_n, ]
+mnist <- read.csv("PATH TO MNIST.CSV")
 mnist$y <- as.factor(mnist$y)
-trainIndex = createDataPartition(mnist$y, p=0.7, list=FALSE)
-train_set <- mnist[trainIndex, -785]  # exclude label if doing tda
-train_y_true <- mnist[trainIndex, 785]
-test_set <- mnist[-trainIndex, -785]
-test_y_true <- mnist[-trainIndex, 785]
+set.seed(1)
+train_idx <- sample(seq_len(nrow(mnist)), 0.8*nrow(mnist))  # simple sampling
+train_set <- mnist[train_idx, -785]  # exclude label if doing tda
+train_y_true <- mnist[train_idx, 785]
+test_set <- mnist[-train_idx, -785]
+test_y_true <- mnist[-train_idx, 785]
 
 #---- parameters for performing TDAsweep ----#
 nr = 28  # mnist is 28x28
@@ -99,19 +98,16 @@ tda_train_set$labels <- as.factor(tda_train_set$labels)
 tda_test_set <- tda_wrapper_func(image=test_set, labels=test_y_true,
                                         nr=nr, nc=nc, rgb=rgb, thresh=thresholds,
                                         intervalWidth=intervalWidth)
-dim(tda_test_set)
 tda_test_set <- as.data.frame(tda_test_set)
 tda_test_label <- tda_test_set$labels
 tda_test <- tda_test_set[, -167]  # take out labels for testing the svm model later
 
-#---- training and predicting using caret's svm model ----#
-registerDoMC(cores=3)
-tc <- trainControl(method = "cv", number = 4, verboseIter = F, allowParallel = T)
-svm_model <- train(labels ~., data=tda_train_set, method = "svmRadial", trControl = tc)
+#---- training and predicting using e1071 svm model ----#
+system.time(svm_model <- svm(labels ~., data=tda_train_set))
 predict <- predict(svm_model, newdata=tda_test)
 
 #---- Evaluation ----#
-confusionMatrix(as.factor(predict), as.factor(tda_test_label))
+mean(predict == tda_test_label) # accuracy on test set
 ```
 
 
@@ -121,46 +117,59 @@ This example uses the [MNIST dataset](http://heather.cs.ucdavis.edu/mnist.csv) a
 
 ```R
 # initialization
-mnist <- read.csv("../mnist.csv")   # get dataset
-img <- mnist[, -785]
-label <- mnist[, 785]
-nr <- 28                            # height of one image
-nc <- 28                            # width of one image
-rgb <- FALSE
-thresh <- 20                        # ignore all pixels with intensity lower than this 
-intervalWidth <- 4
+mnist <- read.csv("PATH TO MNIST.CSV")
+mnist$y <- as.factor(mnist$y)
+set.seed(1)
+train_idx <- sample(seq_len(nrow(mnist)), 0.8*nrow(mnist))  # simple sampling
+train_set <- mnist[train_idx, -785]  # exclude label if doing tda
+train_y_true <- mnist[train_idx, 785]
+test_set <- mnist[-train_idx, -785]
+test_y_true <- mnist[-train_idx, 785]
 
-... # shuffle and take a small chunk of images
+#---- parameters for performing TDAsweep ----#
+nr = 28  # mnist is 28x28
+nc = 28
+rgb = FALSE  # mnist is grey scaled
+thresholds = c(50)  # set one threshold, 50
+intervalWidth = 1  # set intervalWidth to 1
 
-tdaout <- tda_wrapper_func(img, label, nr=nr, nc=nc, rgb=FALSE, thresh=thresh, 
-                            intervalWidth=intervalWidth)
-# look at first output
-head(tdaout, 1)   
-# [1,] 0 0.5 2 2.25 2.00 1 0.5 0 0.25 1.25 2.75 1.50 0.25 0 3 1.75 1 0.00 0 0 0
-# [1,] 2.5 2.25 1.25 0.25 0 0 0 0 0 0 0 0.25 1.50 1.75 1.25 1.00 1.25 0 0 0 0
-#     labels
-# [1,]      3
-tdaout$labels <- as.character(tdaout$labels)
+#---- performing tda on train set ----#
+tda_train_set <- tda_wrapper_func(image=train_set, labels=train_y_true, 
+                                        nr=nr, nc=nc, rgb=rgb, thresh=thresholds,
+                                        intervalWidth=intervalWidth)
+dim(tda_train_set)  # 784 -> 166 features after TDAsweep
+tda_train_set <- as.data.frame(tda_train_set)
+tda_train_set$labels <- as.factor(tda_train_set$labels)
+
+#---- performing tda on test set ----#
+tda_test_set <- tda_wrapper_func(image=test_set, labels=test_y_true,
+                                        nr=nr, nc=nc, rgb=rgb, thresh=thresholds,
+                                        intervalWidth=intervalWidth)
+tda_test_set <- as.data.frame(tda_test_set)
+tda_test_label <- tda_test_set$labels
+tda_test <- tda_test_set[, -167]  # take out labels for testing the svm model later
+
+#---- training and predicting using polyFit ----#
 pfout <- polyFit(res[-c(1:5),],2)   # fit quadratic model
 newx <- tdaout[c(1:5),]             # test on the 5 rows we omitted before
 newx <- newx[,-43] 
 predict(pfout, newx)
 
+#---- Evaluation ----#
+mean(predict == tda_test_label) # accuracy on test set
+
 ```
 
 ## Parallelization
-Parallelization is supported by TDAsweep. Users can input self-created clusters to TDAsweep. If the parameter was not specified, the code will use the default option of creating clusters with half of the available cores of the local machine.
+Parallelization is supported by TDAsweep. Users can input number of cores to TDAsweep (e.g. TDAsweep(...,cls=4,...) # using 4 cores). If the parameter was not specified, the code will use the default option of not doing parallelization.
 
-**Example of creating cluster:**
-library(partools)
-cls<- makeCluster(2)  # creates two clusters
-TDAsweep(…, cls=cls,…)
+
 
 ## Analysis of TDAsweep on the MNIST dataset
 
 The results of running TDAsweep on the MNIST dataset before classification was very encouraging. We were able to achieve ~78.8% feature reduction in exchange for less than 1% accuracy loss. As a result, the runtime of training the Support Vector Machine was drastically decreased.
 
-![alt text](https://github.com/matloff/tdaImage/blob/tdapar/table.png)
+![alt text](https://github.com/matloff/table.png)
 
     (Table 1. Speed Comparison of SVM before and after TDAsweep)
 
