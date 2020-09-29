@@ -1,20 +1,31 @@
 
 # high-level functions to provide a "turnkey" enrionment for image
-# analysts
+# analysts; uses the qe*() series from regtools
 
-# args are as in TDAsweep(), except for mlCnd: this is the function call
-# (quoted) to run on the training set produced by the TDAsweep
-# operation; the input must be referred to as tdaout
+# args are as in TDAsweep(), except for:
+
+# qeFtn
 
 tdaFit <- function(images,labels,nr,nc,rgb=TRUE,
    thresholds=0,intervalWidth=1,cls=NULL,rcOnly=FALSE,
-   mlCmd)
+   qeFtn,mlFtnArgs=NULL)
 {
-stop('under construction')
-# no mlCmd; use qe*() for extra convenience
    tdaout <- TDAsweep(images=images,labels=labels,nr=nr,nc=nc,rgb=rgb,
       thresholds=thresholds,intervalWidth=intervalWidth,cls=cls,rcOnly=rcOnly,
       prep=FALSE)
+browser()
+   tdaout <- cbind(as.data.frame(tdaout$df),labels=labels)
+   mlcmd <- paste0(qeFtn,'(tdaout,"labels"')
+   if (is.null(mlFtnArgs)) mlcmd <- paste0(mlcmd,')')
+   else {
+      nms <- names(mlFtnArgs)
+      for (i in 1:length(nms)) {
+         mlcmd <- paste0(mlcmd,',')
+         argval <- mlFtnArgs[[nms[i]]]
+         arg <- paste0(nms[i],'=',argval)
+         if (i == length(nms)) mlcmd <- paste0(mlcmd,')')
+      }
+   }
    mlout <- eval(parse(text=mlCnd))
    mlout$nr <- nr
    mlout$nc <- nc
@@ -26,7 +37,7 @@ stop('under construction')
    mlout
 }
 
-predict.tdaFit <- function(object,,newImages) 
+predict.tdaFit <- function(object,newImages) 
 {
 ### need to retain classNames
 }
