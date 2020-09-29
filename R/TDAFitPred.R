@@ -17,7 +17,8 @@ stop('under construction')
       prep=FALSE)
    mlout <- eval(parse(text=mlCnd))
    mlout$nr <- nr
-   mlout$nc <- nc,mlout$rgb <- rgb,
+   mlout$nc <- nc
+   mlout$rgb <- rgb
    mlout$thresholds <- thresholds
    mlout$intervalWidth <- intervalWidth
    mlout$rcOnly <- rcOnly
