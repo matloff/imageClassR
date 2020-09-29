@@ -1,9 +1,8 @@
 library(tdaImage)
 library(liquidSVM)
 library(e1071)
-source("~/Downloads/regtools-master/R/Img.R")
-source("~/Downloads/tdaImage-master/R/TDAsweep_wrapper_par.R")
-getwd()
+
+
 TDAsweep_demo_fmnist <- function(){
 
 # ------- pre-processing for fashion mnist ------- #

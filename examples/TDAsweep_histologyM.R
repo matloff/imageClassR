@@ -1,6 +1,6 @@
 library(tdaImage)
 library(liquidSVM)
-source("~/Downloads/tdaImage-master/R/TDAsweep_wrapper_par.R")
+library(e1071)
 
 TDAsweep_demo_hmnist28 <- function(){
 

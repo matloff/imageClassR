@@ -1,8 +1,6 @@
 library(tdaImage)
 library(liquidSVM)
 library(e1071)
-source("~/Downloads/regtools-master/R/Img.R")
-source("~/Downloads/tdaImage-master/R/TDAsweep_wrapper_par.R")
 
 
 TDAsweep_demo_mnist <- function(){

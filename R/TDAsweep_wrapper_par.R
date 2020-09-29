@@ -59,7 +59,6 @@ TDAsweep <- function(images, labels, nr, nc , rgb=TRUE,
 # basic pipeline function for tda-sweep in one set of images
 tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, rcOnly)
 {  
-  print(getwd())
   if(!is.null(cls)){  # cls!=NULL. start parallel
     core_num = dim(as.matrix(setclsinfo(cls)))[1]
     img_pixels <- images
