@@ -14,7 +14,8 @@ tdaFit <- function(images,labels,nr,nc,rgb=TRUE,
       thresholds=thresholds,intervalWidth=intervalWidth,cls=cls,rcOnly=rcOnly,
       prep=FALSE)
 browser()
-   tdaout <- cbind(as.data.frame(tdaout$df),labels=labels)
+   tdaout <- cbind(as.data.frame(tdaout$tda_df),labels=labels)
+   labels <- as.factor(labels)
    mlcmd <- paste0(qeFtn,'(tdaout,"labels"')
    if (is.null(mlFtnArgs)) mlcmd <- paste0(mlcmd,')')
    else {
@@ -26,7 +27,7 @@ browser()
          if (i == length(nms)) mlcmd <- paste0(mlcmd,')')
       }
    }
-   mlout <- eval(parse(text=mlCnd))
+   mlout <- eval(parse(text=mlcmd))
    mlout$nr <- nr
    mlout$nc <- nc
    mlout$rgb <- rgb
