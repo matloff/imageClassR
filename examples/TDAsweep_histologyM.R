@@ -1,11 +1,11 @@
 library(tdaImage)
 library(liquidSVM)
-
+source("~/Downloads/tdaImage-master/R/TDAsweep_wrapper_par.R")
 
 TDAsweep_demo_hmnist28 <- function(){
 
 # ------- loading histology-mnist (28x28) -------- #
-histology_mnist_28 <- read.csv("54223_103778_bundle_archive/hmnist_28_28_L.csv")
+histology_mnist_28 <- read.csv("~/Downloads/54223_103778_bundle_archive/hmnist_28_28_L.csv")
 
 # ------- pre-processing for histology-mnist(28x28) ------- #
 histology_mnist_28 <- as.data.frame(histology_mnist_28)
@@ -18,12 +18,12 @@ test_set <- histology_mnist_28[-train_idx, -785]
 test_y_true <- histology_mnist_28[-train_idx, 785]
 
 # ------- TDA Sweep ------- #
-system.time(tda_train_set <- TDAsweep(train_set, train_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1))
+system.time(tda_train_set <- TDAsweep(train_set, train_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1, cls=4))
 tda_train_set <- as.data.frame(tda_train_set$tda_df)
 tda_train_set$labels <- as.factor(tda_train_set$labels)
 
 
-system.time(tda_test_set <- TDAsweep(test_set, test_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1))
+system.time(tda_test_set <- TDAsweep(test_set, test_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1, cls=4))
 tda_test_set <- as.data.frame(tda_test_set$tda_df)
 tda_test_label <- tda_test_set$labels
 tda_test <- tda_test_set[, -333]
@@ -32,13 +32,14 @@ tda_test <- tda_test_set[, -333]
 svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 # CV
-confusionMatrix(as.factor(predict), as.factor(tda_test_label))
+mean(predict == tda_test_label) # accuracy on test set
+# confusionMatrix(as.factor(predict), as.factor(tda_test_label))
 }
-
+# 
 TDAsweep_demo_hmnist64 <- function(){
 
 # ------- loading histology-mnist (64x64) -------- #
- histology_mnist_64 <- read.csv("54223_103778_bundle_archive/hmnist_64_64_L.csv")
+histology_mnist_64 <- read.csv("./54223_103778_bundle_archive/hmnist_64_64_L.csv")
 
 # ------- pre-processing for histology-mnist(64x64) ------- #
 histology_mnist_64 <- as.data.frame(histology_mnist_64)
@@ -50,25 +51,13 @@ train_y_true <- histology_mnist_64[train_idx, 4097]
 test_set <- histology_mnist_64[-train_idx, -4097]
 test_y_true <- histology_mnist_64[-train_idx, 4097]
 
-# ------- loading augmented histology-mnist (64x64) -------- #
-# augmented_histology_mnist_64 <- read.csv("~/Downloads/augmented_hmnist64.csv")
-
-# ------- pre-processing for augmented histology-mnist(64x64) ------- #
-augmented_histology_mnist_64 <- as.data.frame(augmented_histology_mnist_64)
-augmented_histology_mnist_64$label <- as.factor(augmented_histology_mnist_64$label)
-train_idx <- createDataPartition(augmented_histology_mnist_64$label, p = 0.8, list = FALSE)
-train_set <- augmented_histology_mnist_64[train_idx, ]  # exclude label if doing tda
-train_y_true <- augmented_histology_mnist_64[train_idx, 4097]
-test_set <- augmented_histology_mnist_64[-train_idx, -4097]
-test_y_true <- augmented_histology_mnist_64[-train_idx, 4097]
-
 # ------- TDA Sweep ------- #
-tda_train_set <- TDAsweep(train_set, train_y_true, nr=64, nc=64, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1)
+system.time(tda_train_set <- TDAsweep(train_set, train_y_true, nr=64, nc=64, rgb=FALSE, thresh=c(50), intervalWidth = 1, cls=4))
 tda_train_set <- as.data.frame(tda_train_set$tda_df)
 tda_train_set$labels <- as.factor(tda_train_set$labels)
 
 
-tda_test_set <- TDAsweep(test_set, test_y_true, nr=64, nc=64, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1)
+system.time(tda_test_set <- TDAsweep(test_set, test_y_true, nr=64, nc=64, rgb=FALSE, thresh=c(50), intervalWidth = 1, cls=4))
 tda_test_set <- as.data.frame(tda_test_set$tda_df)
 tda_test_label <- tda_test_set$labels
 tda_test <- tda_test_set[, -765]  # remove label column for test set
@@ -78,5 +67,6 @@ tda_test <- tda_test_set[, -765]  # remove label column for test set
 svm_model <- svm(labels ~., data=tda_train_set)
 predict <- predict(svm_model, newdata = tda_test)
 # CV
-confusionMatrix(as.factor(predict), as.factor(tda_test_label))
+mean(predict == tda_test_label) # accuracy on test set
+# confusionMatrix(as.factor(predict), as.factor(tda_test_label))
 }

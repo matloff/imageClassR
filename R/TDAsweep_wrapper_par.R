@@ -15,6 +15,7 @@ library(partools)
 TDAsweep <- function(images, labels, nr, nc , rgb=TRUE, 
                                  thresholds = 0, intervalWidth=1, cls=NULL, prep=FALSE, rcOnly=FALSE)
 {
+   # set current working directory to file location
   if(!is.null(cls)){  # default cluster
     print("creating custers...")
     cls <- makeCluster(cls)
@@ -58,6 +59,7 @@ TDAsweep <- function(images, labels, nr, nc , rgb=TRUE,
 # basic pipeline function for tda-sweep in one set of images
 tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, rcOnly)
 {  
+  print(getwd())
   if(!is.null(cls)){  # cls!=NULL. start parallel
     core_num = dim(as.matrix(setclsinfo(cls)))[1]
     img_pixels <- images
@@ -69,7 +71,7 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
       clusterExport(cls, varlist=c('nr', 'thresh'), envir=environment())
       distribsplit(cls, 'img_pixels')
       distribsplit(cls, 'labels')
-      clusterEvalQ(cls, source('TDAprep.R'))
+      clusterEvalQ(cls, library(tdaImage))
       res <- clusterEvalQ(cls, res <- prepImgSet(img_pixels, nr=nr,
                                                  labels=labels, thresh=thresh))
       res <- do.call('rbind', res)
@@ -79,7 +81,6 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
       }
       prepImgs$thresh = thresh
       prepImgs$nr = nr
-      # print(system.time(prepImgs_nopar <- prepImgSet(img_pixels, nr=nr, labels=labels, thresh=thresh)))
     }
     else{
       prepImgs <- images
@@ -101,9 +102,9 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
       prepImgs_split[i] <- list(temp)
     }
     clusterApply(cls, prepImgs_split, function(x){prepImgs_node <<- x; NULL})
-    clusterEvalQ(cls, source("TDAsweep.R"))
+    clusterEvalQ(cls, library(tdaImage))
     
-    res <- clusterEvalQ(cls, res <- TDAsweepImgSet( prepImgs_node, nr=nr, nc=nc,
+    res <- clusterEvalQ(cls, res <- TDAsweepImgSet(prepImgs_node, nr=nr, nc=nc,
                                                       intervalWidth=intervalWidth, rcOnly=rcOnly))  # prepImgs_node not found??
     result <- do.call("rbind", res)  # combine results accross all clusters
     return(result)
@@ -121,15 +122,5 @@ tda_sweep <- function(images, labels, nr, nc, thresh, intervalWidth, cls, prep, 
                    rcOnly=rcOnly)
     return(result)
   }
-  # print(system.time(new_set <- TDAsweepImgSet(prepImgs_nopar, nr=nr, nc=nc, intervalWidth=intervalWidth,
-  #                                             rcOnly=rcOnly)))
-  # print(result == new_set)
-}
 
-########### small test #############
-# mnist <- read.csv("~/Downloads/mnist_train.csv")  # just testing. No need to shuffle
-# mnist$label <- as.factor(mnist$label)
-# train_set <- mnist[1:100, -1]  # exclude label if doing tda
-# train_y_true <- mnist[1:100, 1]
-# a <- TDAsweep(train_set, train_y_true, 28, 28, F,
-#                       c(100),  intervalWidth=1, cls=NULL, prep=F)
+}
