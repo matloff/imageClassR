@@ -18,7 +18,6 @@ tdaFit <- function(images,labels,nr,nc,rgb=TRUE,
    thresholds=0,intervalWidth=1,cls=NULL,rcOnly=FALSE,
    qeFtn,mlFtnArgs=NULL)
 {
-stop('under construction')
    if (inherits(images,'matrix')) images <- as.data.frame(images)
 
    tdaout <- TDAsweep(images=images,labels=labels,nr=nr,nc=nc,rgb=rgb,
@@ -56,7 +55,7 @@ print(mlcmd)
    mlout$intervalWidth <- intervalWidth
    mlout$rcOnly <- rcOnly
    mlout$constCols <- ccs
-   mlout$classNames <- levels(tdaout$factors)
+   mlout$classNames <- levels(tdaout$labels)
    class(mlout) <- c('tdaFit',class(mlout))
    mlout
 }
