@@ -41,7 +41,7 @@ tdaFit <- function(images,labels,nr,nc,rgb=TRUE,
          mlcmd <- paste0(mlcmd,',')
          argval <- mlFtnArgs[[nms[i]]]
          arg <- paste0(nms[i],'=',argval)
-         if (i == length(nms)) mlcmd <- paste0(mlcmd,')')
+         if (i == length(nms)) mlcmd <- paste0(mlcmd,arg,')')
       }
    }
 print(mlcmd)
