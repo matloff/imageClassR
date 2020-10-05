@@ -2,7 +2,7 @@ library(tdaImage)
 library(liquidSVM)
 
 
-# ------- load kuzushiji-mnist dataset ------- #
+# ----------- License for load_image_file() and load_label_file() helper functions ----------- #
 # Copyright 2008, Brendan O'Connor
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
@@ -15,6 +15,7 @@ library(liquidSVM)
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 # IN THE SOFTWARE.
+
 
 load_image_file = function(filename) {  # function for extracting dataset from Brendan
   ret = list()
@@ -39,13 +40,14 @@ load_label_file = function(filename) {  # function for extracting dataset from B
 }
 
 TDAsweep_demo_kmnist <- function(){
+# ------- load kuzushiji-mnist dataset ------- #
 # load images
 kuzushiji_train = load_image_file("./89887_215882_bundle_archive/train-images-idx3-ubyte/train-images-idx3-ubyte")
 kuzushiji_test  = load_image_file("./89887_215882_bundle_archive/t10k-images-idx3-ubyte/t10k-images-idx3-ubyte")
 
 # # load labels
-kuzushiji_train$y = as.factor(load_label_file("~/Downloads/89887_215882_bundle_archive/train-labels-idx1-ubyte/train-labels-idx1-ubyte"))
-kuzushiji_test$y  = as.factor(load_label_file("~/Downloads/89887_215882_bundle_archive/t10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte"))
+kuzushiji_train$y = as.factor(load_label_file("./89887_215882_bundle_archive/train-labels-idx1-ubyte/train-labels-idx1-ubyte"))
+kuzushiji_test$y  = as.factor(load_label_file("./89887_215882_bundle_archive/t10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte"))
 
 # ------- pre-processing for kuzushiji-mnist ------- #
 train_set <- kuzushiji_train[, -785]  # exclude label if doing tdas
