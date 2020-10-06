@@ -72,7 +72,6 @@ predict.tdaFit <- function(object,newImages)
    tdaout <- as.data.frame(tdaout$tda_df)
 
    # remove whatever cols were deleted in the original fit
-   browser()
    ccs <- object$constCols
    tdaout <- tdaout[,-ccs]
    tdaout <- as.data.frame(tdaout)  # df of the new features
