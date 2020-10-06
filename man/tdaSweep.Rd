@@ -78,6 +78,9 @@ tfout <- tdaFit(xtrn,ytrn,28,28,FALSE,c(100,175),qeFtn='qeRF')
 predict(tfout,xtst[1:3,]) 
 # performance on holdout set (within training set)
 tfout$testAcc
+# fit a gradient boosting model, with optional parameters
+tfout <- tdaFit(xtrn,ytrn,28,28,FALSE,c(100,175),qeFtn='qeGBoost',
+   mlFtnArgs=list(nTree=500,minNodeSize = 20))
 
 }
 }
