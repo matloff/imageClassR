@@ -61,25 +61,18 @@ probability of correct classification on a holdout set.
 \dontrun{
 # need to first get the MNIST data, in form required for 'images'
 # arguments; one way is 
-library(keras)
-mnist <- dataset_mnist()
-x_train <- mnist$train$x  # dim 60000 x 28 x 28 array
-y_train <- mnist$train$y  # vec length 60000
-xtrn <- x_train
-ytrn <- y_train
-dim(xtrn) <- c(60000,28*28)  # xtrn now dim 60000 x 784 matrix
-x_test <- mnist$test$x  # dim 10000 x 28 x 28 array
-y_test <- mnist$test$y  # vec length 10000
-xtst <- x_test
-ytst <- y_test
-dim(xtst) <- c(10000,28*28)  # xtst now dim 10000 x 784 matrix
+mnist <- getMNIST()
+idxs <- sample(1:nrow(mnist),10000)  # keep the scale small in this example
+x <- mnist[idxs,-785]
+y <- mnist[idxs,785]
 # fit, and predict first few
-tfout <- tdaFit(xtrn,ytrn,28,28,FALSE,c(100,175),qeFtn='qeRF') 
-predict(tfout,xtst[1:3,]) 
+tfout <- tdaFit(x,y,28,28,FALSE,c(100,175),qeFtn='qeRF') 
+predict(tfout,x[1:3,]) 
 # performance on holdout set (within training set)
 tfout$testAcc
+
 # fit a gradient boosting model, with optional parameters
-tfout <- tdaFit(xtrn,ytrn,28,28,FALSE,c(100,175),qeFtn='qeGBoost',
+tfout <- tdaFit(x,y,28,28,FALSE,c(100,175),qeFtn='qeGBoost',
    mlFtnArgs=list(nTree=500,minNodeSize = 20))
 
 }
