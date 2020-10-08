@@ -1,8 +1,8 @@
 
 export(
-   tda_wrapper_func, tda_sweep, 
+   tda_wrapper_func,
    TDAsweepOneImg,TDAsweepImgSet,
    prepOneImage,prepImgSet,
-   TDAsweep, test_one_img
+   TDAsweep
 )
 
