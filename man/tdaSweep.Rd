@@ -1,4 +1,5 @@
 \name{TDAsweep}
+\alias{TDAsweep}
 \alias{TDAsweepOneImg}
 \alias{TDAsweepImgSet}
 \alias{prepOneImage}
