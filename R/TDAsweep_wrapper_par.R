@@ -1,4 +1,11 @@
-library(partools)
+#' Add together two numbers
+#' 
+#' @param x A number.
+#' @param y A number.
+#' @return The sum of \code{x} and \code{y}.
+#' @examples
+#' add(1, 1)
+#' add(10, 1)
 
 # --- parameters --- #
 # images: dataframe or matrix of sets of vectors of image pixels
@@ -15,6 +22,7 @@ library(partools)
 TDAsweep <- function(images, labels, nr, nc , rgb=TRUE, 
                                  thresholds = 0, intervalWidth=1, cls=NULL, prep=FALSE, rcOnly=FALSE)
 {
+
    # set current working directory to file location
   if(!is.null(cls)){  # default cluster
     print("creating custers...")

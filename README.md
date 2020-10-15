@@ -39,6 +39,17 @@ our **TDAsweep** presented here, etc.
 A fast, non-iterative method for dimension reduction of images would be
 quite useful.
 
+## QUICK START
+
+The convenience wrapper `tdaFit()` makes running the system easy.  Type
+
+``` r
+> ?tdaFit
+```
+
+and scroll down to the *examples* section and run the example there.
+
+
 ## TDAsweep
 
 The [**regtools** package](https://github.com/matloff/regtools) is required. 
