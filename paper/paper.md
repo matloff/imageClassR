@@ -9,7 +9,7 @@ authors:
   name: Melissa Goh
 - affiliation: 1
   name: Norm Matloff (corresponding author)
-  orcid: 0000-0003-0872-7098
+  orcid: 0000-0001-9179-6785
 date: "13 August 2017"
 output: rticles::joss_article
 tags:
