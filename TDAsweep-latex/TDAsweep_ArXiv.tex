@@ -150,13 +150,13 @@ As we can see from Table \ref{mnist}, with one threshold and \textbf{intervalWid
 \subsection{Experiment Setup}
 In this section, we will provide performance comparisons between TDAsweep and the other commonly used dimension reduction techniques (PCA \& Convolution). For this purpose, we will provide the general experiment setup here.
 
-We will be using the gray-scale 28x28 Histology-MNIST image dataset, and we will be using the fully-connected layer of the Le-Net 5 CNN architecture as our main training model (shown in Figure \ref{fc}).
+We will be using the gray-scale 28x28 Histology-MNIST image dataset, and we will be using the fully-connected layer of the CNN architecture of choice as our main training model (shown in Figures \ref{le_ful} \& \ref{alex_ful}).
 
 
 \begin{table}[!ht]
 %\begin{adjustwidth}{-1.5in}{0in} % comment out/remove adjustwidth environment if table fits in text column.
 \centering
-\caption{{\bf Fully-connected layer structure}}
+\caption{{\bf Le-Net 5 Fully-connected layer structure}}
 \begin{tabular}{l|l|l}
 \hline
 \multicolumn{1}{l|}{\bf Layer (type)} & \multicolumn{1}{|l|}{\bf Output Shape} & \multicolumn{1}{|l}{\bf Param \#}\\ \hline
@@ -165,15 +165,31 @@ Dense & (1, 84) & 27972  \\ \hline
 Dense & (1, 10) & 850  \\ \hline
 
 \end{tabular}
-\label{tda_aug}
+\label{le_ful}
 %\end{adjustwidth}
 \end{table}
 
+\begin{table}[!ht]
+%\begin{adjustwidth}{-1.5in}{0in} % comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\caption{{\bf AlexNet Fully-connected layer structure}}
+\begin{tabular}{l|l|l}
+\hline
+\multicolumn{1}{l|}{\bf Layer (type)} & \multicolumn{1}{|l|}{\bf Output Shape} & \multicolumn{1}{|l}{\bf Param \#}\\ \hline
+Dense & (1, 4096) & 37752832 \\ \hline
+Dropout (50\%) & (1, 4096) & 0 \\ \hline
+Dense & (1, 4096) & 16781312  \\ \hline
+Dropout (50\%) & (1, 4096) & 0 \\ \hline
+Dense & (1, 10) & 40970  \\ \hline
 
+\end{tabular}
+\label{alex_ful}
+%\end{adjustwidth}
+\end{table}
 
-For each experiment, we will be comparing mean classification accuracy from training the network 20 times, each for 50 epochs with an early-stopping feature (patience of 20 epochs). The network used Adam as its optimizer and sparse categorical cross-entropy (SCC) as its loss function. For TDAsweep, we used thresh=[25,100] and intervalWidth=1, resulting in 332 new features after reduction.
+For each experiment, we compared mean classification accuracy from training the network 20 times, each for 50 epochs with an early-stopping feature (patience of 20 epochs). The networks used Adam as its optimizer and sparse categorical cross-entropy (SCC) as its loss function. For TDAsweep, we used thresh=[25,100] and intervalWidth=1, resulting in 332 new features after reduction.
 
-\subsection{TDAsweep \& PCA}
+\subsection{TDAsweep Versus PCA}
 Invented by Karl Pearson in 1901, Principle Component Analysis has since became a common dimension reduction methodology for large datasets. In a machine learning setting, PCA aims to use the linear mixture of the input features (i.e. principle components) as new variables for representation. Compared to the original input feature space, these principle components are smaller in quantity and aims to explain the variance of the dataset. Here, we will provide a comparison between the performance of TDAsweep and PCA.
 
 \subsubsection{Results}
@@ -206,7 +222,7 @@ TDAsweep + NN & 0.6399 & 0.0251 & 0.5590 & 0.6700 \\ \hline
 As we can see, TDAsweep + NN out-performs PCA + NN by approximately 12\%.
 
 \subsection{TDAsweep Versus Le-Net 5}
-The convolution operation in CNN is essentially another feature extraction and reduction method for the dense layers, hence it would be interesting to compare our method with the 'C' in CNN. We have found our method to be very effective on medical image sets, specifically on Histology images,and we show a case study where TDAsweep + dense neural network out-performs Le-Net 5, a popular CNN architecture known for its simplicity and high-performance. 
+The convolution operation in CNN is essentially another feature extraction and reduction method for the dense layers, hence it would be interesting to compare our method with the 'C' in CNN. We have found our method to be very effective on medical image sets, specifically on Histology images,and we show a case study where TDAsweep + dense neural network out-performs Le-Net 5 \cite{lecun_bottou_bengio_haffner_1998}, a popular CNN architecture known for its simplicity and high-performance. 
 
 \subsubsection{Results}
 
@@ -235,13 +251,69 @@ TDAsweep + NN & 0.6399 & 0.0251 & 0.5590 & 0.6700 \\ \hline
 
 As we could clearly see, after 20 training attempts, TDAsweep + NN still out-performs the Le-Net 5 CNN by around 4\%.
 
-\subsubsection{Further Discussion: Convergence Issue in CNN}
+\subsection{TDAsweep Versus AlexNet}
+To incorporate diversity into our investigation of TDAsweep's performance, we have conducted a comparison between TDAsweep and AlexNet \cite{10.5555/2999134.2999257}.
+
+\subsubsection{Results}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=8cm]{alex_vs_tdasweep.png}
+\caption{{\bf Boxplot comparison between TDAsweep and AlexNet} Each box plot shows the test accuracy of the Histology image dataset trained with AlexNet and TDAsweep, respectively.}
+\label{alex_tdasweep}
+\end{figure}
+
+We show some basic statistics such as mean, standard deviation, minimum, and maximum of the test accuracy over the 20 trains.
+\begin{table}[!ht]
+%\begin{adjustwidth}{-1.5in}{0in} % comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\caption{{\bf Summary statistics over test accuracy of 20 training attempts.}}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\multicolumn{1}{|l|}{} & \multicolumn{1}{|l|}{\bf mean} & \multicolumn{1}{|l|}{\bf std} & \multicolumn{1}{|l|}{\bf min}& \multicolumn{1}{|l|}{\bf max} \\ \hline
+AlexNet & 0.68 & 0.0779 & 0.556 & 0.806 \\ \hline
+TDAsweep + NN & 0.6399 & 0.0251 & 0.5590 & 0.6700 \\ \hline
+
+\end{tabular}
+\label{alex_tda_stat}
+%\end{adjustwidth}
+\end{table}
+
+As we can see from Table \ref{alex_tda_stat} and Fig.\ref{alex_tdasweep}, AlexNet has a slight advantage (approx. 4\% mean accuracy advantage) in accuracy over TDAsweep + fully connected layers. However, in this specific case, we need to keep two constraints in mind:
+
+\begin{enumerate}
+  \item The Histology images had to be up-sampled to 224x224 to feed into AlexNet.
+  \item AlexNet is significantly slower without GPU support.
+\end{enumerate}
+
+In order to conduct a fair comparison, we show the run-time comparison between TDAsweep and AlexNet without GPU acceleration here (refer to Table \ref{run_ta}). Note that TDAsweep was run on a MacBook Pro while AlexNet was run on google colab.
+
+\begin{table}[!ht]
+%\begin{adjustwidth}{-1.5in}{0in} % comment out/remove adjustwidth environment if table fits in text column.
+\centering
+\caption{{\bf Run-time comparison between TDAsweep + FC \& AlexNet.} We also show the CPU and Memory of the machine the model was run on.}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\multicolumn{1}{|l|}{} & \multicolumn{1}{|l|}{\bf TDAsweep + FC} & \multicolumn{1}{|l|}{\bf AlexNet}\\ \hline
+CPU & 2.3 GHz 8-Core Intel Core i9 & Intel(R) Xeon(R) CPU @ 2.20GHz \\ \hline
+Memory & 16GB & 13.3GB \\ \hline
+No. of features & 332 & 50176  \\ \hline
+No. of epochs (until early-stop) & 27 & 21 \\ \hline
+total run-time & 9.4 min & 102.55 min  \\ \hline
+\end{tabular}
+\label{run_ta}
+%\end{adjustwidth}
+\end{table}
+
+As we could see from Table \ref{run_ta}, due to the up-sampling constraint and removal of GPU accelerator, AlexNet is running significantly slower than TDAsweep + fully connected layers. Overall in this specific experiment, we can see that TDAsweep + fully connected layers is much more run-time efficient than AlexNet and is able to achieve similar accuracy regardless. Hence, we consider this as another case that shows TDAsweep's advantages over other popular dimension reduction and feature extraction techniques.
+
+\subsection{Convergence Issue in CNN}
 
 Convergence has been a major challenge in neural network design and implementation. Convergence issues include (but are not limited to) exploding gradient \cite{philipp_song_carbonell_2018}, vanishing gradient, and failure to reach global minima of the loss function landscape. This might be caused by a wide range of factors in the model \cite{Pascanu2014}, some examples are: activation function used, saddle points, drop-out rates, and learning rates. To deal with this issue, a large amount of hyper-parameter tuning will be involved, and one would often need to go through a hectic process to debug \cite{fortelny_bock_2019}. In particular, the filter parameters in convolutional neural networks are yet another set of parameters for the neural network to tune and use to minimize loss with, again bringing up the concern of convergence issues. However, if we replace convolution with TDAsweep as another means of dimension reduction and feature extraction, we could alleviate the burden as it is merely performing a fixed set of arithmetic operations without any needs of iterations. 
 
 
 \section{Experiments \& Characteristic Analysis}
-The above timings were for the \textbf{e1071} R package implementation of SVM. This is the "standard" implementation, but a lesser-known package, \textbf{liquidSVM}, can be much faster. The experiments described below were conducted with this version of SVM. We have used the default parameters for the \textbf{liquidSVM} package as well.
+The \textbf{e1071} R package implementation is the "standard" implementation, but a lesser-known package, \textbf{liquidSVM}, can be much faster. The experiments described below were conducted with this version of SVM. We have used the default parameters for the \textbf{liquidSVM} package as well.
 
 Other than \emph{MNIST}, we analyzed the multifaceted advantages that \emph{TDAsweep} could bring with other widely known image datasets such as \emph{histology-MNIST} \cite{kather_weis_bianconi_melchers_schad_gaiser_marx_zöllner_2016} and \emph{CIFAR-10} \cite{Krizhevsky09learningmultiple}.
 
@@ -451,6 +523,11 @@ Fortelny, Nikolaus and Bock, Christoph
 George Philipp, Dawn Song, Jaime G. Carbonell
 \newblock The exploding gradient problem demystified - definition, prevalence, impact, origin, tradeoffs, and solutions
 \newblock In {\em arXiv}, 2018-04-06
+
+\bibitem{lecun_bottou_bengio_haffner_1998}
+Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.
+\newblock Gradient-based learning applied to document recognition
+\newblock In {\em Proceedings of the IEEE, 1998}
 
 \end{thebibliography}
 
