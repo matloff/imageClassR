@@ -259,3 +259,85 @@ findNumComps <- function(i2D,rowOrColOrDiag,startRowCol,nr,nc)
    sum(tmp - tmp0[-(rayLength+1)] == 1)
 }
 
+
+######################  tdasweeponeimg()  ##############################
+
+# inputs an image in the form of a vector storing the image in row-major
+# order; does horizontal and vertical sweeps, and outputs a vector of
+# component counts
+
+# nr and nc are the numbers of rows and cols in the image 
+
+# arguments:
+
+#    img: img in vector form (see above)
+#    nr:  number of rows in image
+#    nc:  number of cols in image
+#    intervalWidth:  number of consecutive rows and columns to consolidate
+
+# value:
+#
+#    vector of component counts 
+
+tdasweeponeimg <- function(img,nr,nc,thresh,intervalWidth=1) 
+{
+   
+   tda <- NULL
+
+   # replace each pixel by 1 or 0, according to whether >= 1
+   img10 <- as.integer(img >= thresh)
+
+   counts <- NULL
+   for (i in 1:nr) 
+      counts <- c(counts,findnumcomps(img10,'row',i,nr,nc))
+   counts <- tointervalmeans(counts,intervalWidth)
+   tda <- c(tda,counts)
+
+   counts <- NULL
+   for (i in 1:nc) 
+      counts <- c(counts,findnumcomps(img10,'col',i,nr,nc))
+   counts <- tointervalmeans(counts,intervalWidth)
+   tda <- c(tda,counts)
+
+   tda
+}
+
+# returns the number of components in a given row or column 
+
+# args:
+#    img10: thresholded version of img
+#    rowOrCol: one of 'row', 'col', 'nwse', 'nesw'
+#    nr, nc: numbers of rows and columns in the image
+
+# value: number of components found in this sweep
+findnumcomps <- function(img10,rowOrCol,rowColNum,nr,nc) 
+{
+   # convert to matrix view
+   mat <- matrix(img10,byrow=TRUE,ncol=nc)
+
+   if (rowOrCol == 'row') ray <- mat[rowColNum,]
+   else ray <- mat[,rowColNum]
+
+   # components in tmp start wherever a 0 is followed by a 1, or with a
+   # 1 on the left end
+   rayLength <- length(ray)
+   tmp <- ray
+   tmp0 <- c(0,tmp)
+   sum(tmp - tmp0[-(rayLength+1)] == 1)
+}
+
+# oneRC: one row or column
+tointervalmeans <- function(countVec,intervalWidth) 
+{
+   mat <- matrix(countVec,byrow=TRUE,ncol=intervalWidth)
+   apply(mat,1,mean)
+}
+
+tdasweepimgset <- function(imgs,nr,nc,thresh,intervalWidth=1) 
+{
+   f <- function(img) tdasweeponeimg(img=img,nr=nr,nc=nc,thresh=thresh,
+         intervalWidth=intervalWidth)
+   t(apply(imgs[,-(nr*nc+1)],1,f))
+}
+
+
