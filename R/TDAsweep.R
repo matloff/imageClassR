@@ -329,6 +329,11 @@ findnumcomps <- function(img10,rowOrCol,rowColNum,nr,nc)
 # oneRC: one row or column
 tointervalmeans <- function(countVec,intervalWidth) 
 {
+   # add padding if needed; 
+   lcv <- length(countVec)
+   extra <- lcv %% intervalWidth
+   if (extra > 0) countVec <- c(countVec) + rep(countVec[lcv],extra)
+
    mat <- matrix(countVec,byrow=TRUE,ncol=intervalWidth)
    apply(mat,1,mean)
 }
