@@ -345,4 +345,20 @@ tdasweepimgset <- function(imgs,nr,nc,thresh,intervalWidth=1)
    t(apply(imgs[,-(nr*nc+1)],1,f))
 }
 
-
+# v is a vector of nr and nc rows and cols, stored in row-major order;
+# return value is a list with all the NW-to-SE diagonals
+getNWSEdiags <- function(v,nr,nc) 
+{
+   m <- matrix(v,ncol=nc,byrow=TRUE)
+   res <- list()
+   # go through all possible starting points, first along Column 1 and
+   # then along Row 
+   rowm <- row(m)
+   colm <- col(m)
+   getOneNWSEdiag <- function(k) m[rowm - colm == nr-k]
+   lapply(1:(nr+nc-1),getOneNWSEdiag)
+   # for (k in 1:(nr+nc-1))  {
+   #    tmp <- m[rowm - colm == nr-k]
+   #    print(tmp)
+   # }
+}
