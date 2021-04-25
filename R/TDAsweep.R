@@ -351,10 +351,11 @@ getNWSEdiags <- function(v,nr,nc)
 {
    m <- matrix(v,ncol=nc,byrow=TRUE)
    res <- list()
-   # go through all possible starting points, first along Column 1 and
-   # then along Row 
+   # go through all possible starting points, first along column 1 and
+   # then along row 1
    rowm <- row(m)
    colm <- col(m)
+   # get ray starting at Row nr-k
    getOneNWSEdiag <- function(k) m[rowm - colm == nr-k]
    lapply(1:(nr+nc-1),getOneNWSEdiag)
    # for (k in 1:(nr+nc-1))  {
@@ -367,15 +368,14 @@ getNWSEdiags <- function(v,nr,nc)
 # return value is a list with all the SW-to-NE diagonals
 getSWNEdiags <- function(v,nr,nc) 
 {
-   stop('under construction')
    m <- matrix(v,ncol=nc,byrow=TRUE)
    res <- list()
-   # go through all possible starting points, first along Column 1 and
-   # then along Row 
+   # go through all possible starting points, first at row 1, col 1
    rowm <- row(m)
    colm <- col(m)
-   getOneNWSEdiag <- function(k) m[rowm - colm == nr-k]
-   lapply(1:(nr+nc-1),getOneNWSEdiag)
+   # get ray with row + col = k
+   getOneNWSEdiag <- function(k) m[rowm + colm == k]
+   lapply(2:(nr+nc),getOneNWSEdiag)
    # for (k in 1:(nr+nc-1))  {
    #    tmp <- m[rowm - colm == nr-k]
    #    print(tmp)
