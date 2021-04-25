@@ -296,7 +296,6 @@ tdasweeponeimg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE)
    tda <- c(tda,counts)
 
    counts <- NULL
-   browser()
    for (i in 1:nc) counts <- c(counts,findnumcomps(img10[,i]))
    counts <- tointervalmeans(counts,intervalWidth)
    tda <- c(tda,counts)
@@ -343,11 +342,8 @@ getNWSEdiags <- function(v,nr,nc)
    colm <- col(m)
    # get ray starting at Row nr-k
    getOneNWSEdiag <- function(k) m[rowm - colm == nr-k]
-   lapply(1:(nr+nc-1),getOneNWSEdiag)
-   # for (k in 1:(nr+nc-1))  {
-   #    tmp <- m[rowm - colm == nr-k]
-   #    print(tmp)
-   # }
+   lout <- lapply(1:(nr+nc-1),getOneNWSEdiag)
+   sapply(lout,findnumcomps)
 }
 
 # v is a vector of nr and nc rows and cols, stored in row-major order;
@@ -361,11 +357,8 @@ getSWNEdiags <- function(v,nr,nc)
    colm <- col(m)
    # get ray with row + col = k
    getOneNWSEdiag <- function(k) m[rowm + colm == k]
-   lapply(2:(nr+nc),getOneNWSEdiag)
-   # for (k in 1:(nr+nc-1))  {
-   #    tmp <- m[rowm - colm == nr-k]
-   #    print(tmp)
-   # }
+   lout <- lapply(2:(nr+nc),getOneNWSEdiag)
+   sapply(lout,findnumcomps)
 }
 
 # countVec: vector of counts from one row or column or diagonal
