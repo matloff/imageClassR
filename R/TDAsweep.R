@@ -279,25 +279,36 @@ findNumComps <- function(i2D,rowOrColOrDiag,startRowCol,nr,nc)
 #
 #    vector of component counts 
 
-tdasweeponeimg <- function(img,nr,nc,thresh,intervalWidth=1) 
+tdasweeponeimg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
 {
    
    tda <- NULL
 
-   # replace each pixel by 1 or 0, according to whether >= 1
+   # replace each pixel by 1 or 0, according to whether >= 1, and
+   # convert to matrix rep
    img10 <- as.integer(img >= thresh)
+   img10vec <- img10
+   img10 <- matrix(img10,ncol=nc,byrow=TRUE)
 
    counts <- NULL
-   for (i in 1:nr) 
-      counts <- c(counts,findnumcomps(img10,'row',i,nr,nc))
+   for (i in 1:nr) counts <- c(counts,findnumcomps(img10[i,]))
    counts <- tointervalmeans(counts,intervalWidth)
    tda <- c(tda,counts)
 
    counts <- NULL
-   for (i in 1:nc) 
-      counts <- c(counts,findnumcomps(img10,'col',i,nr,nc))
+   browser()
+   for (i in 1:nc) counts <- c(counts,findnumcomps(img10[,i]))
    counts <- tointervalmeans(counts,intervalWidth)
    tda <- c(tda,counts)
+
+   if (!rcOnly) {
+      counts <- getNWSEdiags(img10vec,nr,nc)
+      counts <- tointervalmeans(counts,intervalWidth)
+      tda <- c(tda,counts)
+      counts <- getSWNEdiags(img10vec,nr,nc)
+      counts <- tointervalmeans(counts,intervalWidth)
+      tda <- c(tda,counts)
+   }
 
    tda
 }
@@ -310,39 +321,14 @@ tdasweeponeimg <- function(img,nr,nc,thresh,intervalWidth=1)
 #    nr, nc: numbers of rows and columns in the image
 
 # value: number of components found in this sweep
-findnumcomps <- function(img10,rowOrCol,rowColNum,nr,nc) 
+findnumcomps <- function(ray)
 {
-   # convert to matrix view
-   mat <- matrix(img10,byrow=TRUE,ncol=nc)
-
-   if (rowOrCol == 'row') ray <- mat[rowColNum,]
-   else ray <- mat[,rowColNum]
-
    # components in tmp start wherever a 0 is followed by a 1, or with a
    # 1 on the left end
    rayLength <- length(ray)
    tmp <- ray
    tmp0 <- c(0,tmp)
    sum(tmp - tmp0[-(rayLength+1)] == 1)
-}
-
-# oneRC: one row or column
-tointervalmeans <- function(countVec,intervalWidth) 
-{
-   # add padding if needed; 
-   lcv <- length(countVec)
-   extra <- lcv %% intervalWidth
-   if (extra > 0) countVec <- c(countVec) + rep(countVec[lcv],extra)
-
-   mat <- matrix(countVec,byrow=TRUE,ncol=intervalWidth)
-   apply(mat,1,mean)
-}
-
-tdasweepimgset <- function(imgs,nr,nc,thresh,intervalWidth=1) 
-{
-   f <- function(img) tdasweeponeimg(img=img,nr=nr,nc=nc,thresh=thresh,
-         intervalWidth=intervalWidth)
-   t(apply(imgs[,-(nr*nc+1)],1,f))
 }
 
 # v is a vector of nr and nc rows and cols, stored in row-major order;
@@ -380,5 +366,24 @@ getSWNEdiags <- function(v,nr,nc)
    #    tmp <- m[rowm - colm == nr-k]
    #    print(tmp)
    # }
+}
+
+# countVec: vector of counts from one row or column or diagonal
+tointervalmeans <- function(countVec,intervalWidth) 
+{
+   # add padding if needed; 
+   lcv <- length(countVec)
+   extra <- lcv %% intervalWidth
+   if (extra > 0) countVec <- c(countVec) + rep(countVec[lcv],extra)
+
+   mat <- matrix(countVec,byrow=TRUE,ncol=intervalWidth)
+   apply(mat,1,mean)
+}
+
+tdasweepimgset <- function(imgs,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
+{
+   f <- function(img) tdasweeponeimg(img=img,nr=nr,nc=nc,thresh=thresh,
+         intervalWidth=intervalWidth,rcOnly=rcOnly)
+   t(apply(imgs[,-(nr*nc+1)],1,f))
 }
 
