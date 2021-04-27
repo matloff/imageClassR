@@ -28,4 +28,17 @@ m2
 m2a <- as.vector(m1)
 TDAsweepOneImg(img=m2a,nr=5,nc=4,thresh=50,rcOnly=FALSE)
 # [1] 1 1 1 0 1 1 1 0 2 0 0 0 2 1 1 0 0 1 1 1 0 0 1 0 1
+ma <- rbind(m1a,m2a,m2a,m1a)
+lbls <- c(1,3,2,2)
+TDAsweepImgSet(ma,lbls,4,5,50)
+#       T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20
+# m1a    1  1  0  2  1  1  1  0  1   0   0   1   1   2   0   0   0   1   1   1
+# m2a    2  1  1  1  1  1  0  0  2   0   0   1   1   1   0   0   1   1   1   0
+# m2a.1  2  1  1  1  1  1  0  0  2   0   0   1   1   1   0   0   1   1   1   0
+# m1a.1  1  1  0  2  1  1  1  0  1   0   0   1   1   2   0   0   0   1   1   1
+#       T21 T22 T23 T24 T25 labels
+# m1a     0   0   1   0   1      1
+# m2a     1   1   0   0   1      3
+# m2a.1   1   1   0   0   1      2
+# m1a.1   0   0   1   0   1      2
 

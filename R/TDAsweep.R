@@ -1,17 +1,13 @@
 
 # TDAsweep routines 
 
-# main function is TDAsweepImgSet(), which operates on a set of images;
-# usage:  input a matrix of images, 1 image per row; apply prepImgSet();
-# feed output of latter into TDAsweepImgSet()
-
-
+# main function is TDAsweepImgSet(), which operates on a set of images
 
 ######################  TDAsweepOneImg()  ##############################
 
 # inputs an image in the form of a vector storing the image in row-major
 # order, WITHOUT labels; does horizontal and vertical sweeps, and
-# outputs a vector of component counts
+# optinally verticla ones, outputting a vector of component counts
 
 # nr and nc are the numbers of rows and cols in the image 
 
@@ -124,14 +120,22 @@ toIntervalMeans <- function(countVec,intervalWidth)
    apply(mat,1,mean)
 }
 
-# this routine sweeps through all images in a set, but unlike
-# TDAsweepOneImg(), here we assume the labels are present, in the last
-# column
-
-TDAsweepImgSet <- function(imgs,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
+# this routine sweeps through all images in a matrix 'imgs', one image
+# per row; 'labels' is the associated labels, as a vector or factor a
+# data frame is returned, with col names 'V1', 'V2', ... and finally
+# 'labels' 
+TDAsweepImgSet <- 
+   function(imgs,labels,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
 {
-   f <- function(img) TDAsweepOneImg(img=img,nr=nr,nc=nc,thresh=thresh,
+   fOneImg <- function(oneImg) {
+      TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
          intervalWidth=intervalWidth,rcOnly=rcOnly)
-   t(apply(imgs[,-(nr*nc+1)],1,f))
+   }
+   tda <- t(apply(imgs,1,fOneImg))
+   tda <- as.data.frame(tda)
+   names(tda) <- paste0('T',1:ncol(tda))
+   if (!is.factor(labels)) labels <- as.factor(labels)
+   tda$labels <- labels
+   tda
 }
 
