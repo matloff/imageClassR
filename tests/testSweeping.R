@@ -17,6 +17,8 @@ TDAsweepOneImg(img=m1a,nr=4,nc=5,thresh=50,intervalWidth=1,rcOnly=FALSE)
 TDAsweepOneImg(img=m1a,nr=4,nc=5,thresh=50,intervalWidth=3,rcOnly=FALSE)
 # [1] 0.6666667 1.3333333 0.6666667 0.3333333 1.0000000 0.3333333 0.6666667
 # [8] 0.3333333 1.0000000
+TDAsweepOneImg(img=m1a,nr=4,nc=5,thresh=c(10,50),intervalWidth=1,rcOnly=TRUE)
+# [1] 2 1 2 1 2 2 1 1 1 1 1 0 2 1 1 1 0 1
 m2 <- t(m1)
 m2
 #      [,1] [,2] [,3] [,4]

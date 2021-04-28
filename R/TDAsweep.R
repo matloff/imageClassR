@@ -16,6 +16,7 @@
 #    img: img in vector form (see above)
 #    nr:  number of rows in image
 #    nc:  number of cols in image
+#    thresh: vector of threshold values
 #    intervalWidth:  number of consecutive rows and columns to consolidate
 
 # value:
@@ -27,29 +28,32 @@ TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE)
    
    tda <- NULL
 
-   # replace each pixel by 1 or 0, according to whether >= 1, and
-   # convert to matrix rep
-   img10 <- as.integer(img >= thresh)
-   img10vec <- img10
-   img10 <- matrix(img10,ncol=nc,byrow=TRUE)
+   for (threshi in thresh) {
 
-   counts <- NULL
-   for (i in 1:nr) counts <- c(counts,findNumComps(img10[i,]))
-   # counts <- toIntervalMeans(counts,intervalWidth)
-   tda <- c(tda,counts)
-
-   counts <- NULL
-   for (i in 1:nc) counts <- c(counts,findNumComps(img10[,i]))
-   # counts <- toIntervalMeans(counts,intervalWidth)
-   tda <- c(tda,counts)
-
-   if (!rcOnly) {
-      counts <- getNWSEdiags(img10vec,nr,nc)
+      # replace each pixel by 1 or 0, according to whether >= 1, and
+      # convert to matrix rep
+      img10 <- as.integer(img >= threshi)
+      img10vec <- img10
+      img10 <- matrix(img10,ncol=nc,byrow=TRUE)
+   
+      counts <- NULL
+      for (i in 1:nr) counts <- c(counts,findNumComps(img10[i,]))
       # counts <- toIntervalMeans(counts,intervalWidth)
       tda <- c(tda,counts)
-      counts <- getSWNEdiags(img10vec,nr,nc)
+   
+      counts <- NULL
+      for (i in 1:nc) counts <- c(counts,findNumComps(img10[,i]))
       # counts <- toIntervalMeans(counts,intervalWidth)
       tda <- c(tda,counts)
+   
+      if (!rcOnly) {
+         counts <- getNWSEdiags(img10vec,nr,nc)
+         # counts <- toIntervalMeans(counts,intervalWidth)
+         tda <- c(tda,counts)
+         counts <- getSWNEdiags(img10vec,nr,nc)
+         # counts <- toIntervalMeans(counts,intervalWidth)
+         tda <- c(tda,counts)
+      }
    }
 
    # note: this average at boundaries, e.g. end of row counts and start
