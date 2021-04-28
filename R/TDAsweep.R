@@ -23,7 +23,7 @@
 #
 #    vector of component counts 
 
-TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
+TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
 {
    
    tda <- NULL
@@ -149,7 +149,7 @@ toIntervalMeans <- function(countVec,intervalWidth)
 # 'labels' 
 
 TDAsweepImgSet <- 
-   function(imgs,labels,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
+   function(imgs,labels,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
 {
    WfOneImg <- function(oneImg) {
       TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
