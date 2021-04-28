@@ -63,14 +63,15 @@ TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE)
    tda
 }
 
-# returns the number of components in a given row or column 
+######################  helper functions  ##############################
+
+# findNumComps():  finds the number of components in a ray
 
 # args:
-#    img10: thresholded version of img
-#    rowOrCol: one of 'row', 'col', 'nwse', 'nesw'
-#    nr, nc: numbers of rows and columns in the image
+#    ray: a vector of counts, e.g. from one row of an image
 
 # value: number of components found in this sweep
+
 findNumComps <- function(ray)
 {
    # components in tmp start wherever a 0 is followed by a 1, or with a
@@ -81,8 +82,12 @@ findNumComps <- function(ray)
    sum(tmp - tmp0[-(rayLength+1)] == 1)
 }
 
+# getNWSEdiags(), getSWNEdiags():  these find the numbers of component
+# counts in all NW-to-SE and SW-to-NE diagonals
+
 # v is a vector of nr and nc rows and cols, stored in row-major order;
-# return value is a list with all the NW-to-SE diagonals
+# return value is a vector with all the NW-to-SE diagonals
+
 getNWSEdiags <- function(v,nr,nc) 
 {
    m <- matrix(v,ncol=nc,byrow=TRUE)
@@ -112,7 +117,17 @@ getSWNEdiags <- function(v,nr,nc)
    sapply(lout,findNumComps)
 }
 
-# countVec: vector of counts from one row or column or diagonal
+# toIntervalMeans():  if intervalWidth > 1, finds interval means
+
+# args:
+
+#    countVec: vector of counts from one or more rows, columns or diagonals
+#    intervalWidth: as the name implies
+
+# value:
+
+#    vector of counts replaced by mean
+
 toIntervalMeans <- function(countVec,intervalWidth) 
 {
    # add padding if needed; 
@@ -124,14 +139,19 @@ toIntervalMeans <- function(countVec,intervalWidth)
    apply(mat,1,mean)
 }
 
+#######################  TDAsweepImgSet()  ############################
+
+# the main function
+
 # this routine sweeps through all images in a matrix 'imgs', one image
 # per row; 'labels' is the associated labels, as a vector or factor a
-# data frame is returned, with col names 'V1', 'V2', ... and finally
+# data frame is returned, with col names 'T1', 'T2', ... and finally
 # 'labels' 
+
 TDAsweepImgSet <- 
    function(imgs,labels,nr,nc,thresh,intervalWidth=1,rcOnly=FALSE) 
 {
-   fOneImg <- function(oneImg) {
+   WfOneImg <- function(oneImg) {
       TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
          intervalWidth=intervalWidth,rcOnly=rcOnly)
    }
