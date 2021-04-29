@@ -151,7 +151,7 @@ toIntervalMeans <- function(countVec,intervalWidth)
 TDAsweepImgSet <- 
    function(imgs,labels,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
 {
-   WfOneImg <- function(oneImg) {
+   fOneImg <- function(oneImg) {
       TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
          intervalWidth=intervalWidth,rcOnly=rcOnly)
    }
