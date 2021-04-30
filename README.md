@@ -1,13 +1,34 @@
-# tdaImage
+# dimRedImage
 
 ## Overview
 
-Novel method for image classification using [Topological Data Analysis
-(TDA)](Slides.pdf). Using TDA in the image contenxt, one is able to
-perform dimension reduction on a dataset to improve runtime of the
-analysis as well as to avoid the risk of overfitting. 
+Currently a popular method for image classification is Convolutional
+Neural Networks (CNN).  It provides a general technique, and when
+properly tuned, can be quite powerful.
 
-## Intuition
+The key phrase here, though, is "properly tuned."  CNNs have many
+hyperparameters, and finding the proper combination can be quite
+difficult and extremely time-consuming.  In some applications,
+alternative approaches may be desirable.
+
+This package takes an approach we call DR + ML, meaning one first
+applies a dimension reduction method, then applies a standard
+machine learning algorithm on the lower-dimensional data.
+
+For instance, one might take DR = PCA and ML = SVM; we apply SVM to the
+lower-dimensional data obtained by PCA.  CNN may be viewed as a special
+case, described as C + NN.  Here C represents the convolutional layers
+and NN the dense ones.
+
+We feature TDAsweep, a novel method for image classification using
+[Topological Data Analysis (TDA)](Slides.pdf). Using TDA in the image
+contenxt, one is able to perform dimension reduction on a dataset to
+improve runtime of the analysis as well as to avoid the risk of
+overfitting. 
+
+## TDAsweep
+
+### Intuition
 
 Inspired from Topological Data Analysis, TDAsweep defines components in a more simplified way. Specifically, TDAsweep casts thresholding on the original image (each pixel value above the threshold will be denoted as 1 and 0 otherwise). Then, TDAsweep counts contiguous components in horizontal, vertical, and the two diagonal directions of a pixel matrix. The counts of the components in each direction will serve as the new set of features describing the original image.
 
@@ -39,7 +60,7 @@ our **TDAsweep** presented here, etc.
 A fast, non-iterative method for dimension reduction of images would be
 quite useful.
 
-## QUICK START
+### QUICK START
 
 The convenience wrapper `tdaFit()` makes running the system easy.  Type
 
@@ -50,7 +71,7 @@ The convenience wrapper `tdaFit()` makes running the system easy.  Type
 and scroll down to the *examples* section and run the example there.
 
 
-## TDAsweep
+### TDAsweep
 
 The [**regtools** package](https://github.com/matloff/regtools) is required. 
 
@@ -171,12 +192,12 @@ mean(predict == tda_test_label) # accuracy on test set
 
 ```
 
-## Parallelization
+### Parallelization
 Parallelization is supported by TDAsweep. Users can input number of cores to TDAsweep (e.g. TDAsweep(...,cls=4,...) # using 4 cores). If the parameter was not specified, the code will use the default option of not doing parallelization.
 
 
 
-## Analysis of TDAsweep on the MNIST dataset
+### Analysis of TDAsweep on the MNIST dataset
 
 The results of running TDAsweep on the MNIST dataset before classification was very encouraging. We were able to achieve ~78.8% feature reduction in exchange for less than 1% accuracy loss. As a result, the runtime of training the Support Vector Machine was drastically decreased.
 
