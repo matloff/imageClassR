@@ -10,17 +10,18 @@
 #    qeFtn: one of the functions in regtools::qe*, e.g. qeSVM()
 #    opts:  algorithm-specifc arguments, R list of named elements,
 #       e.g. opts = list(gamma = 1) for qeSVM()
+#    method-specific arguments, e.g. thresh and intervalWidth for TDAsweep
 
 ############################  TDAsweep  ###################################
 
-drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=TRUE,
-   thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
+drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout))
+   qeFtn,opts=list(holdout=holdout),cls=NULL,
+   thresh=c(50,100,150),intervalWidth=2)
 {
 
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=nc,
-      thresh=thresh,intervalWidth=intervalWidth,rcOnly=rcOnly)
+      thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
 
    # must deal with constant columns, typically all-0, as many ML algs try to
    # scale the data and will balk; remove such columns, and make a note
@@ -53,7 +54,6 @@ drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=TRUE,
    res$rgb <- rgb
    res$thresh <- thresh
    res$intervalWidth <- intervalWidth
-   res$rcOnly <- rcOnly
    res$constCols <- ccs
    res$classNames <- levels(tdaout$labels)
    res$testAcc <- res$qeout$testAcc
@@ -70,7 +70,7 @@ predict.drmlTDAsweep <- function(object,newImages)
    tdaout <-
       TDAsweepImgSet(imgs=newImages,labels=fakeLabels,nr=object$nr,nc=object$nc,
       thresh=object$thresh,intervalWidth=object$intervalWidth,
-      rcOnly=object$rcOnly)
+      rcOnly=TRUE)
    tdaout <- tdaout[,-ncol(tdaout)]  # remove fake labels
 
    # remove whatever cols were deleted in the original fit
@@ -82,12 +82,14 @@ predict.drmlTDAsweep <- function(object,newImages)
 
 ###############################  FFT  ################################
 
+# dim: dimension of FFT, 1 or 2
+
 drmlFFT <- function(imgs,labels,nr,nc,rgb=TRUE,
    thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout))
+   qeFtn,opts=list(holdout=holdout),dim=2)
 {
-
+   if (is.data.frame(imgs)) imgs <- as.matrix(imgs)
 
 
 }
