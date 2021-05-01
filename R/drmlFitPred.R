@@ -33,17 +33,7 @@ drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
    }  
 
    # construct the qe*() series call
-   mlcmd <- paste0(qeFtn,'(tdaout,"labels"')
-   if (is.null(opts)) mlcmd <- paste0(mlcmd,')')  # more args?
-   else {
-      nms <- names(opts)
-      for (i in 1:length(nms)) {
-         mlcmd <- paste0(mlcmd,',')
-         argval <- opts[[nms[i]]]
-         arg <- paste0(nms[i],'=',argval)
-         if (i == length(nms)) mlcmd <- paste0(mlcmd,arg,')')
-      }
-   }
+   mlcmd <- buildQEcall(paste0(qeFtn,'(tdaout,"labels"'),opts)
 
    res <- list()  # eventual return value
 
@@ -80,17 +70,22 @@ predict.drmlTDAsweep <- function(object,newImages)
    predict(object$qeout,tdaout)  
 }
 
-###############################  FFT  ################################
+###############################  DCT  ################################
 
-# dim: dimension of FFT, 1 or 2
+# nFreqs: number of lowest frequencies to retain
 
 drmlFFT <- function(imgs,labels,nr,nc,rgb=TRUE,
    thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout),dim=2)
+   qeFtn,opts=list(holdout=holdout),nFreqs=8)
 {
-   if (is.data.frame(imgs)) imgs <- as.matrix(imgs)
 
+   require(fftw)
+
+   if (is.data.frame(imgs)) imgs <- as.matrix(imgs)
+   fout <- apply(hm1,1,DCT)
+   fout <- fout[,1:nFreqs]
+  
 
 }
 
