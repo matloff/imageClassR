@@ -41,35 +41,37 @@ drmlTDA <- function(imgs,labels,nr,nc,rgb=TRUE,
       }
    }
 
+   res <- list()  # eventual return value
+
    # exeecute the command and set result for return value
-   mlout <- eval(parse(text=mlcmd))
-   mlout$nr <- nr
-   mlout$nc <- nc
-   mlout$rgb <- rgb
-   mlout$thresh <- thresh
-   mlout$intervalWidth <- intervalWidth
-   mlout$rcOnly <- rcOnly
-   mlout$constCols <- ccs
-   mlout$classNames <- levels(tdaout$labels)
-   class(mlout) <- c('drmlTDA',class(mlout))
-   mlout
+   res$qeout <- eval(parse(text=mlcmd))
+   res$nr <- nr
+   res$nc <- nc
+   res$rgb <- rgb
+   res$thresh <- thresh
+   res$intervalWidth <- intervalWidth
+   res$rcOnly <- rcOnly
+   res$constCols <- ccs
+   res$classNames <- levels(tdaout$labels)
+   class(res) <- c('drmlTDA',class(res$qeout))
+   res
 }
 
-predict.tdaFit <- function(object,newImages) 
+predict.drmlTDA <- function(object,newImages) 
 {
    class(object) <- class(object)[-1]
+   newImages <- as.matrix(newImages)
+   fakeLabels <- rep(object$classNames[1],nrow(newImages))
    tdaout <-
-      TDAsweep(images=newImages,labels=NULL,nr=object$nr,nc=object$nc,
-      rgb=object$rgb,thresholds=object$thresholds,
-      intervalWidth=object$intervalWidth,cls=object$cls,
-      rcOnly=object$rcOnly,
-      prep=FALSE)
-   tdaout <- as.data.frame(tdaout$tda_df)
+      TDAsweepImgSet(imgs=newImages,labels=fakeLabels,nr=object$nr,nc=object$nc,
+      thresh=object$thresh,intervalWidth=object$intervalWidth,
+      rcOnly=object$rcOnly)
+   tdaout <- tdaout[,-ncol(tdaout)]  # remove fake labels
 
    # remove whatever cols were deleted in the original fit
    ccs <- object$constCols
-   tdaout <- tdaout[,-ccs]
-   tdaout <- as.data.frame(tdaout)  # df of the new features
-   predict(object,tdaout)  
+   if (length(ccs) > 0) tdaout <- tdaout[,-ccs]
+
+   predict(object$qeout,tdaout)  
 }
 
