@@ -5,14 +5,16 @@
 
 # uses the qe*() series from regtools
 
-# args are as in TDAsweep(), except for:
+# args are as in TDAsweepImgSet(), except for:
 
-#    qeFtn: one of 'Logit', 'KNN', 'Lin', 'RF', 'SVM', 'GBoost', 'NN',
-#       the choices in the qe*() series
-#    mlFtnArgs:  algorithm-specifc arguments, R list of named elements
+#    qeFtn: one of the functions in regtools::qe*, e.g. qeSVM()
+#    opts:  algorithm-specifc arguments, R list of named elements,
+#       e.g. opts = list(gamma = 1) for qeSVM()
 
-drmlTDA <- function(imgs,labels,nr,nc,rgb=TRUE,
-   thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=TRUE,
+############################  TDAsweep  ###################################
+
+drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=TRUE,
+   thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
    qeFtn,opts=list(holdout=holdout))
 {
@@ -56,11 +58,11 @@ drmlTDA <- function(imgs,labels,nr,nc,rgb=TRUE,
    res$classNames <- levels(tdaout$labels)
    res$testAcc <- res$qeout$testAcc
    res$baseAcc <- res$qeout$baseAcc
-   class(res) <- c('drmlTDA',class(res$qeout))
+   class(res) <- c('drmlTDAsweep',class(res$qeout))
    res
 }
 
-predict.drmlTDA <- function(object,newImages) 
+predict.drmlTDAsweep <- function(object,newImages) 
 {
    class(object) <- class(object)[-1]
    newImages <- as.matrix(newImages)
@@ -76,5 +78,17 @@ predict.drmlTDA <- function(object,newImages)
    if (length(ccs) > 0) tdaout <- tdaout[,-ccs]
 
    predict(object$qeout,tdaout)  
+}
+
+###############################  FFT  ################################
+
+drmlFFT <- function(imgs,labels,nr,nc,rgb=TRUE,
+   thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
+   holdout=floor(min(1000,0.1*nrow(imgs))),
+   qeFtn,opts=list(holdout=holdout))
+{
+
+
+
 }
 
