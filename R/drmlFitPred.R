@@ -13,7 +13,8 @@
 
 drmlTDA <- function(imgs,labels,nr,nc,rgb=TRUE,
    thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=TRUE,
-   qeFtn,opts=NULL,holdout=floor(min(1000,0.1*nrow(images))))
+   holdout=floor(min(1000,0.1*nrow(imgs))),
+   qeFtn,opts=list(holdout=holdout))
 {
 
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=nc,
@@ -53,6 +54,8 @@ drmlTDA <- function(imgs,labels,nr,nc,rgb=TRUE,
    res$rcOnly <- rcOnly
    res$constCols <- ccs
    res$classNames <- levels(tdaout$labels)
+   res$testAcc <- res$qeout$testAcc
+   res$baseAcc <- res$qeout$baseAcc
    class(res) <- c('drmlTDA',class(res$qeout))
    res
 }
