@@ -74,7 +74,7 @@ predict.drmlTDAsweep <- function(object,newImages)
 
 # nFreqs: number of lowest frequencies to retain
 
-drmlFFT <- function(imgs,labels,nr,nc,rgb=TRUE,
+drmlDCT <- function(imgs,labels,nr,nc,rgb=FALSE,
    thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
    qeFtn,opts=list(holdout=holdout),nFreqs=8)
@@ -83,9 +83,27 @@ drmlFFT <- function(imgs,labels,nr,nc,rgb=TRUE,
    require(fftw)
 
    if (is.data.frame(imgs)) imgs <- as.matrix(imgs)
-   fout <- apply(hm1,1,DCT)
+   fout <- apply(imgs,1,DCT)
+
    fout <- fout[,1:nFreqs]
-  
+   fout <- as.data.frame(fout)
+   fout$labels <- labels
+
+   # construct the qe*() series call
+   mlcmd <- buildQEcall(paste0(qeFtn,'(fout,"labels"'),opts)
+
+   res <- list()  # eventual return value
+
+   # exeecute the command and set result for return value
+   res$qeout <- eval(parse(text=mlcmd))
+   res$fout <- fout
+   res$rgb <- rgb
+   res$constCols <- ccs
+   res$classNames <- levels(tdaout$labels)
+   res$testAcc <- res$qeout$testAcc
+   res$baseAcc <- res$qeout$baseAcc
+   class(res) <- c('drmlTDAsweep',class(res$qeout))
+   res
 
 }
 
