@@ -70,22 +70,27 @@ predict.drmlTDAsweep <- function(object,newImages)
    predict(object$qeout,tdaout)  
 }
 
-###############################  DCT  ################################
+############################  Moments  ################################
 
-# nFreqs: number of lowest frequencies to retain
+# nMoms: number of first momentsretain
 
-drmlDCT <- function(imgs,labels,nr,nc,rgb=FALSE,
-   thresh=c(50,100,150),intervalWidth=2,cls=NULL,rcOnly=FALSE,
+drmlMoments <- function(imgs,labels,nr,nc,rgb=FALSE,
    holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout),nFreqs=8)
+   qeFtn,opts=list(holdout=holdout),nMoments=4)
 {
+   require(moments)
 
-   require(fftw)
+   ccs <- constCols(imgs)
+   if (length(ccs) > 0) {
+      imgs <- imgs[,-ccs]
+      warning('constant columns have been removed from the input data')
+   }  
 
    if (is.data.frame(imgs)) imgs <- as.matrix(imgs)
-   fout <- apply(imgs,1,DCT)
 
-   fout <- fout[,1:nFreqs]
+   getMoments <- function(x) all.moments(x,order.max=nMoments,central=TRUE)
+   fout <- apply(imgs,1,getMoments)
+   fout <- t(fout)
    fout <- as.data.frame(fout)
    fout$labels <- labels
 
@@ -99,10 +104,10 @@ drmlDCT <- function(imgs,labels,nr,nc,rgb=FALSE,
    res$fout <- fout
    res$rgb <- rgb
    res$constCols <- ccs
-   res$classNames <- levels(tdaout$labels)
+   res$classNames <- levels(labels)
    res$testAcc <- res$qeout$testAcc
    res$baseAcc <- res$qeout$baseAcc
-   class(res) <- c('drmlTDAsweep',class(res$qeout))
+   class(res) <- c('drmlMoments',class(res$qeout))
    res
 
 }
