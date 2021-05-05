@@ -15,11 +15,9 @@
 ############################  TDAsweep  ###################################
 
 drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
-   holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout),cls=NULL,
-   thresh=c(50,100,150),intervalWidth=2)
+   qeFtn,opts=NULL,cls=NULL,thresh=c(50,100,150),intervalWidth=2,
+   holdout=floor(min(1000,0.1*nrow(imgs)))) 
 {
-
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=nc,
       thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
 
@@ -75,8 +73,8 @@ predict.drmlTDAsweep <- function(object,newImages)
 # nMoms: number of first momentsretain
 
 drmlMoments <- function(imgs,labels,nr,nc,rgb=FALSE,
-   holdout=floor(min(1000,0.1*nrow(imgs))),
-   qeFtn,opts=list(holdout=holdout),nMoments=4)
+   qeFtn,opts=list(holdout=holdout),nMoments=4,
+   holdout=floor(min(1000,0.1*nrow(imgs))))
 {
    require(moments)
 
