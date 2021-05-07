@@ -2,6 +2,36 @@
 ## TDAsweep + Support Vector Machine
 Here, we provide some example usage of TDAsweep with Support Vector Machine (SVM) in R. 
 
+### How to run & general formatting
+Each experiment is organized into independent functions (e.g., TDAsweep_demo_mnist()) that could be run directly without parameters.
+
+If the user wishes to, they could also download the code and modify it according to their interest. The general code formatting is as following:
+
+```
+#------ Prepare & Format Dataset ------#
+
+...
+
+#------ Specify parameters for TDAsweep ------#
+
+...
+
+#------ Run TDAsweep for train and test set ------#
+
+...
+
+#------ Classification modeling ------#
+
+...
+
+#------ Evaluation ------#
+
+...
+
+```
+More detailed commenting is also available in the code.
+
+
 **Datasets used for demonstration include:**
 - MNIST
   - Original source at: http://yann.lecun.com/exdb/mnist/
