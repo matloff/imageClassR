@@ -1,4 +1,4 @@
-library(tdaImage)
+library(dimRedImage)
 library(liquidSVM)
 library(snedata)
 
@@ -19,20 +19,27 @@ train_y_true <- cifar[train_idx, 3073]
 test_set <- cifar[-train_idx, -3073]
 test_y_true <- cifar[-train_idx, 3073]
 
+#---- parameters for performing TDAsweep ----#
+nr = 32  # mnist is 28x28
+nc = 32
+thresholds = c(100, 175) 
+intervalWidth = 2  
+
 # ------- TDA Sweep ------- #
 # sweep for train set. change parameter as needed
-tda_train_set <- TDAsweep(train_set, train_y_true, nr=32, nc=32, rgb=TRUE, thresh=c(25, 100), intervalWidth = 1)
-system.time(tda_train_set <- TDAsweep(train_set, train_y_true, nr=28, nc=28, rgb=TRUE, thresh=c(25, 100), intervalWidth = 1))
-tda_train_set <- as.data.frame(tda_train_set$tda_df)
-tda_train_set$labels <- as.factor(tda_train_set$labels)
+system.time(tda_train_set <- TDAsweepImgSet(train_set, train_y_true, nr=nr,
+                                            nc=nc, thresh=thresholds,
+                                            intervalWidth = intervalWidth))
+labels <- as.factor(tda_train_set[,66])
+tda_train_set <- as.data.frame(tda_train_set[,-66])
+
 
 # sweep for test set. change parameter as needed
-tda_test_set <- TDAsweep(test_set, test_y_true, nr=32, nc=32, rgb=TRUE, thresh=c(25, 100), intervalWidth = 1)
-system.time(tda_test_set <- TDAsweep(test_set, test_y_true, nr=64, nc=64, rgb=FALSE, thresh=c(25, 100), intervalWidth = 1))
-tda_test_set <- as.data.frame(tda_test_set$tda_df)
-tda_test_label <- tda_test_set$labels
-tda_test <- tda_test_set[, -1141]
-
+system.time(tda_test_set <- TDAsweepImgSet(test_set, test_y_true, nr=nr,
+                                           nc=nc, thresh=thresholds, 
+                                           intervalWidth = intervalWidth))
+tda_test_label <- as.factor(tda_test_set[,66])
+tda_test <- as.data.frame(tda_test_set[,-66])
 
 # ------- SVM ------- #
 svm_model <- svm(labels ~., data=tda_train_set)  # train

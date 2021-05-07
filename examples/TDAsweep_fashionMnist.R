@@ -1,4 +1,4 @@
-library(tdaImage)
+library(dimRedImage)
 library(liquidSVM)
 library(e1071)
 
@@ -11,17 +11,28 @@ train_y_true <- train_set[, 1]
 test_set <-  read.csv("./fashionmnist/fashion-mnist_test.csv")
 test_y_true <- test_set[, 1]
 
+#---- parameters for performing TDAsweep ----#
+nr = 28  # mnist is 28x28
+nc = 28
+thresholds = c(100, 175) 
+intervalWidth = 2  
+
 # ------- TDA Sweep ------- #
 # sweep for train set. change parameter as needed
-system.time(tda_train_set <- TDAsweep(train_set[,-1], train_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(100), intervalWidth = 1, cls=4))
-tda_train_set <- as.data.frame(tda_train_set$tda_df)
-tda_train_set$labels <- as.factor(tda_train_set$labels)
+system.time(tda_train_set <- TDAsweepImgSet(imgs=train_set[,-1],
+                                            labels=train_y_true, nr=nr, nc=nc,
+                                            thresh=thresholds,
+                                            intervalWidth = intervalWidth))
+labels <- as.factor(tda_train_set[,58])
+tda_train_set <- as.data.frame(tda_train_set[,-58])
 
 # sweep for test set. change parameter as needed
-system.time(tda_test_set <- TDAsweep(test_set[,-1], test_y_true, nr=28, nc=28, rgb=FALSE, thresh=c(100), intervalWidth = 1, cls=4))
-tda_test_set <- as.data.frame(tda_test_set$tda_df)
-tda_test_label <- tda_test_set$labels
-tda_test <- tda_test_set[, -167]  # remove label column for generated test set
+system.time(tda_test_set <- TDAsweepImgSet(imgs=test_set[,-1],
+                                           labels=test_y_true, nr=nr, nc=nc,
+                                           thresh=thresholds, 
+                                           intervalWidth = intervalWidth))
+tda_test_label <- as.factor(tda_test_set[,58])
+tda_test <- as.data.frame(tda_test_set[,-58])
 
 
 # ------- SVM ------- #
