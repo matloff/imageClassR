@@ -14,7 +14,7 @@
 
 ############################  TDAsweep  ###################################
 
-drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
+drmlTDAsweep <- function(imgs,labels,nr,nc,
    qeFtn,opts=NULL,cls=NULL,thresh=c(50,100,150),intervalWidth=2,
    holdout=floor(min(1000,0.1*nrow(imgs)))) 
 {
@@ -31,7 +31,7 @@ drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
    }  
 
    # construct the qe*() series call
-   mlcmd <- buildQEcall(paste0(qeFtn,'(tdaout,"labels"'),opts)
+   mlcmd <- buildQEcall(qeFtn,'tdaout','labels',opts,holdout=holdout)
 
    res <- list()  # eventual return value
 
@@ -39,7 +39,6 @@ drmlTDAsweep <- function(imgs,labels,nr,nc,rgb=FALSE,
    res$qeout <- eval(parse(text=mlcmd))
    res$nr <- nr
    res$nc <- nc
-   res$rgb <- rgb
    res$thresh <- thresh
    res$intervalWidth <- intervalWidth
    res$constCols <- ccs
@@ -68,12 +67,14 @@ predict.drmlTDAsweep <- function(object,newImages)
    predict(object$qeout,tdaout)  
 }
 
-############################  Moments  ################################
+############################  MomentsHG  ################################
 
-# nMoms: number of first momentsretain
+# nMoms: number of first moments to retain
+# HOG: if not NULL, also include histogram of gradients, using this as 
+#    (cells,orientations)
 
-drmlMoments <- function(imgs,labels,nr,nc,rgb=FALSE,
-   qeFtn,opts=list(holdout=holdout),nMoments=4,
+drmlMomentsHOG <- function(imgs,labels,nr,nc,
+   qeFtn,opts=NULL,nMoments=4,HOG=NULL,
    holdout=floor(min(1000,0.1*nrow(imgs))))
 {
    require(moments)
@@ -90,23 +91,67 @@ drmlMoments <- function(imgs,labels,nr,nc,rgb=FALSE,
    fout <- apply(imgs,1,getMoments)
    fout <- t(fout)
    fout <- as.data.frame(fout)
+
+   if (!is.null(HOG)) {
+      require(OpenImageR)
+      getHOG <- 
+         function(x) HOG(matrix(x,ncol=nc),cells=HOG[1],orientations=HOG[2])
+      tmp <- apply(as.matrix(imgs),1,getHOG)
+      tmp <- t(tmp)
+      colnames(tmp) <- paste0('HOG',1:ncol(tmp))
+      fout <- cbind(fout,as.data.frame(tmp))
+   }
+
    fout$labels <- labels
 
    # construct the qe*() series call
-   mlcmd <- buildQEcall(paste0(qeFtn,'(fout,"labels"'),opts)
+   mlcmd <- buildQEcall(qeFtn,'fout','labels',opts,holdout=holdout)
 
    res <- list()  # eventual return value
 
    # exeecute the command and set result for return value
    res$qeout <- eval(parse(text=mlcmd))
    res$fout <- fout
-   res$rgb <- rgb
    res$constCols <- ccs
    res$classNames <- levels(labels)
+   res$nMoments <- nMoments
+   res$HOG <- HOG
    res$testAcc <- res$qeout$testAcc
    res$baseAcc <- res$qeout$baseAcc
-   class(res) <- c('drmlMoments',class(res$qeout))
+   res$classif <- TRUE
+   class(res) <- c('drmlMomentsHOG',class(res$qeout))
    res
 
+}
+
+predict.drmlMomentsHOG <- function(object,newImages) 
+{
+   class(object) <- class(object)[-1]
+   if (is.vector(newImages)) newImages <- matrix(newImages,nrow=1)
+   else newImages <- as.matrix(newImages)
+   nMoments <- object$nMoments
+   nc <- object$nc
+
+   getMoments <- 
+      function(x) all.moments(x,order.max=nMoments,central=TRUE)
+   fout <- apply(newImages,1,getMoments)
+   fout <- t(fout)
+   fout <- as.data.frame(fout)
+   # remove whatever cols were deleted in the original fit
+   ccs <- object$constCols
+   if (length(ccs) > 0) fout <- fout[,-ccs]
+
+   HOG <- object$HOG
+   if (!is.null(HOG)) {
+      require(OpenImageR)
+      getHOG <- 
+         function(x) HOG(matrix(x,ncol=nc),cells=HOG[1],orientations=HOG[2])
+      tmp <- apply(newImages,1,getHOG)
+      tmp <- t(tmp)
+      colnames(tmp) <- paste0('HOG',1:ncol(tmp))
+      fout <- cbind(fout,as.data.frame(tmp))
+   }
+
+   predict(object$qeout,fout)  
 }
 
