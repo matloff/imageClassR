@@ -1,12 +1,12 @@
-Package: dimRedImage
+Package: imageClassR
 Version: 1.1.0
-Title: Dimension Reduction for Image Classification
+Title: Quick and Convenient Functions for Image Classification
 Author: Norm Matloff (cre,aut), Melissa Goh (aut), Yu-Shih Chen (aut)
 Maintainer: Norm Matloff <matloff@cs.ucdavis.edu>
 Depends: R (>= 3.5.0),regtools,partools
 License: GPL (>= 2)
-Description: Image classification via dimension reduction preprocessing.
-   Includes a novel approach using Topological Data Analysis.
+Description: Image classification methods.  Includes a novel approach using 
+   Topological Data Analysis.
 URL: https://github.com/matloff/tdaImage
 BugReports: https://github.com/matloff/regtools/issues
 Encoding: UTF-8 
