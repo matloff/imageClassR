@@ -2,11 +2,13 @@
 
 UNDER CONSTRUCTION
 
+
+
 ## Overview
 
 This package serves as a convenient, one-stop site for image
-classification, enabling easy exploration of various standard methods.
-In addition, a new method, TDAsweep, is introduced.
+classification in R, enabling easy exploration of various standard
+methods.  In addition, a new method, TDAsweep, is introduced.
 
 Currently a popular method for image classification is Convolutional
 Neural Networks (CNN).  It provides a general technique, and when
