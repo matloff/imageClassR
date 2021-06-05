@@ -67,7 +67,7 @@ predict.drmlTDAsweep <- function(object,newImages)
    predict(object$qeout,tdaout)  
 }
 
-############################  MomentsHG  ################################
+############################  MomentsHOG  ################################
 
 # nMoms: number of first moments to retain
 # HOG: if not NULL, also include histogram of gradients, using this as 

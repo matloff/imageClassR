@@ -1,6 +1,6 @@
 
 export(
    TDAsweepOneImg,TDAsweepImgSet,
-   drmlTDAsweep
+   drmlTDAsweep,drmlMomentsHOG
 )
 
