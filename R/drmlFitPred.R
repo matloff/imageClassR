@@ -1,4 +1,8 @@
 
+# 'drml' stands for "dimension reduction + ML", meaning that the image
+# set is run through a dimension reduction algorithm, say PCA, with the
+# output then fit by an ML algorithm
+
 # high-level functions to provide a "turnkey" environment for image
 # analysts; input images matrix or data frame and the associated labels,
 # output an object to be used in prediction
@@ -7,7 +11,7 @@
 
 # args are as in TDAsweepImgSet(), except for:
 
-#    qeFtn: one of the functions in regtools::qe*, e.g. qeSVM()
+#    qeFtnName: one of the functions in regtools::qe*, e.g. qeSVM()
 #    opts:  algorithm-specifc arguments, R list of named elements,
 #       e.g. opts = list(gamma = 1) for qeSVM()
 #    method-specific arguments, e.g. thresh and intervalWidth for TDAsweep
@@ -15,9 +19,16 @@
 ############################  TDAsweep  ###################################
 
 drmlTDAsweep <- function(imgs,labels,nr,nc,
-   qeFtn,opts=NULL,cls=NULL,thresh=c(50,100,150),intervalWidth=2,
+   qeFtnName,opts=NULL,cls=NULL,thresh=c(50,100,150),intervalWidth=2,
    holdout=floor(min(1000,0.1*nrow(imgs)))) 
 {
+   res <- list()  # eventual return value
+   res$nr <- nr
+   res$nc <- nc
+   res$thresh <- thresh
+   res$intervalWidth <- intervalWidth
+
+   # fit TDAsweep
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=nc,
       thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
 
@@ -25,23 +36,17 @@ drmlTDAsweep <- function(imgs,labels,nr,nc,
    # scale the data and will balk; remove such columns, and make a note
    # so the same can be done during later prediction
    ccs <- constCols(tdaout)
+   res$constCols <- ccs
    if (length(ccs) > 0) {
       tdaout <- tdaout[,-ccs]
       warning('constant columns have been removed from the input data')
    }  
 
    # construct the qe*() series call
-   mlcmd <- buildQEcall(qeFtn,'tdaout','labels',opts,holdout=holdout)
+   mlcmd <- buildQEcall(qeFtnName,'tdaout','labels',opts,holdout=holdout)
 
-   res <- list()  # eventual return value
-
-   # exeecute the command and set result for return value
+   # execute the command and set result for return value
    res$qeout <- eval(parse(text=mlcmd))
-   res$nr <- nr
-   res$nc <- nc
-   res$thresh <- thresh
-   res$intervalWidth <- intervalWidth
-   res$constCols <- ccs
    res$classNames <- levels(tdaout$labels)
    res$testAcc <- res$qeout$testAcc
    res$baseAcc <- res$qeout$baseAcc
@@ -74,7 +79,7 @@ predict.drmlTDAsweep <- function(object,newImages)
 #    (cells,orientations)
 
 drmlMomentsHOG <- function(imgs,labels,nr,nc,
-   qeFtn,opts=NULL,nMoments=4,HOG=NULL,
+   qeFtnName,opts=NULL,nMoments=4,HOG=NULL,
    holdout=floor(min(1000,0.1*nrow(imgs))))
 {
    require(moments)
@@ -105,7 +110,7 @@ drmlMomentsHOG <- function(imgs,labels,nr,nc,
    fout$labels <- labels
 
    # construct the qe*() series call
-   mlcmd <- buildQEcall(qeFtn,'fout','labels',opts,holdout=holdout)
+   mlcmd <- buildQEcall(qeFtnName,'fout','labels',opts,holdout=holdout)
 
    res <- list()  # eventual return value
 
