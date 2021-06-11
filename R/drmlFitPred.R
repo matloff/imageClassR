@@ -160,3 +160,16 @@ predict.drmlMomentsHOG <- function(object,newImages)
    predict(object$qeout,fout)  
 }
 
+############################  PCA  ###################################
+
+drmlPCA <- function(imgs,labels,nr,nc,qeFtnName,opts=NULL,cls=NULL,pcaProp,
+   holdout=floor(min(1000,0.1*nrow(imgs)))) 
+{
+   res <- list()  # eventual return value
+   pcaout <- qePCA('imgs','labels',qeName=qeFtnName,opts=opts,
+      pcaProp=pcaProp,holdout=holdout)
+
+browser()
+
+}
+
