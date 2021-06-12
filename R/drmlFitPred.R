@@ -5,14 +5,15 @@
 
 # high-level functions to provide a "turnkey" environment for image
 # analysts; input images matrix or data frame and the associated labels,
-# output an object to be used in prediction
+# output an object to be used in prediction 
 
 # uses the qe*() series from regtools
 
 # general arguments:
 
-#    imgs: matrix of pixel data, one row per image (each img in 1-D form)
-#    labels: R factor containing the class labels
+#    data: data from of pixel data, one row per image (each img in 1-D
+#       form), with a column for the labels
+#    yName: name of colun R factor containing the class labels
 #    nr,nc: number of rows, columns in each image
 #    qeFtnName: ML function to be used after dimension reduction, e.g. 'qeSVM'
 #    opts: R list, containing optional arguments for the ML function
@@ -22,11 +23,15 @@
 
 ############################  TDAsweep  ###################################
 
-drmlTDAsweep <- function(imgs,labels,nr,nc,
+drmlTDAsweep <- function(data,yName,nr,nc,
    qeFtnName,opts=NULL,dataAug=NULL, 
-   holdout=floor(min(1000,0.1*nrow(imgs)))
+   holdout=floor(min(1000,0.1*nrow(imgs))),
    thresh=c(50,100,150),intervalWidth=2)
 {
+   ycol <- which(names(data) == yName)
+   imgs <- as.matrix(data[,-ycol])
+   labels <- data[,ycol]
+
    res <- list()  # eventual return value
    res$nr <- nr
    res$nc <- nc
@@ -79,19 +84,24 @@ predict.drmlTDAsweep <- function(object,newImages)
 
 ############################  PCA  ###################################
 
-drmlPCA <- function(imgs,labels,nr,nc,
+drmlPCA <- function(data,yName,nr,nc,
    qeFtnName,opts=NULL,dataAug=NULL, 
-   holdout=floor(min(1000,0.1*nrow(imgs))),
+   holdout=floor(min(1000,0.1*nrow(data))),
    pcaProp)
 {
-   res <- list()  # eventual return value
-   pcaout <- qePCA('imgs','labels',qeName=qeFtnName,opts=opts,
+   qePCA(data,yName,qeName=qeFtnName,opts=opts,
       pcaProp=pcaProp,holdout=holdout)
-
-browser()
-
 }
 
+############################  UMAP  ###################################
+
+drmlUMAP <- function(data,yName,nr,nc,
+   qeFtnName,opts=NULL,dataAug=NULL, 
+   holdout=floor(min(1000,0.1*nrow(data))))
+{
+   qeUMAP(data,yName,qeName=qeFtnName,opts=opts,
+      holdout=holdout)
+}
 
 ############################  MomentsHOG  ################################
 
