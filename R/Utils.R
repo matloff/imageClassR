@@ -8,10 +8,10 @@
 dimRed <- function(d,newCols) 
 {
    ncolx <- ncol(d) - 1
-   numnewcolx <- length(newCols)
+   numnewcolx <- ncol(newCols)
    tonull <- (numnewcolx+1):ncolx
    d[,tonull] <- NULL
-   d[1:numnewcolx] <- newCols
+   d[,1:numnewcolx] <- newCols
    d
 }
 
