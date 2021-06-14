@@ -3,18 +3,20 @@
 # set is run through a dimension reduction algorithm, say PCA, with the
 # output then fit by an ML algorithm
 
+# NOTE:  these all assume greyscale
+
 # high-level functions to provide a "turnkey" environment for image
 # analysts; input images matrix or data frame and the associated labels,
 # output an object to be used in prediction 
 
 # uses the qe*() series from regtools
 
-# general arguments:
+# general arguments (followed by method-specific arguments, e.g.
+#    'thresh' for drmlTDAsweep):
 
 #    data: data from of pixel data, one row per image (each img in 1-D
 #       form), with a column for the labels
 #    yName: name of colun R factor containing the class labels
-#    nr,nc: number of rows, columns in each image
 #    qeFtnName: ML function to be used after dimension reduction, e.g. 'qeSVM'
 #    opts: R list, containing optional arguments for the ML function
 #    dataAug: specification of what data augmentation to do, if any,
@@ -84,7 +86,7 @@ predict.drmlTDAsweep <- function(object,newImages)
 
 ############################  PCA  ###################################
 
-drmlPCA <- function(data,yName,nr,nc,
+drmlPCA <- function(data,yName,
    qeFtnName,opts=NULL,dataAug=NULL, 
    holdout=floor(min(1000,0.1*nrow(data))),
    pcaProp)
@@ -95,12 +97,40 @@ drmlPCA <- function(data,yName,nr,nc,
 
 ############################  UMAP  ###################################
 
-drmlUMAP <- function(data,yName,nr,nc,
+drmlUMAP <- function(data,yName,
    qeFtnName,opts=NULL,dataAug=NULL, 
    holdout=floor(min(1000,0.1*nrow(data))))
 {
    qeUMAP(data,yName,qeName=qeFtnName,opts=opts,
       holdout=holdout)
+}
+
+######################  discrete cos xform  ###########################
+
+drmlDCT <- function(data,yName,
+   qeFtnName,opts=NULL,dataAug=NULL, 
+   holdout=floor(min(1000,0.1*nrow(data))),
+   nFreqs)
+{
+   # compute and extract DCT components
+   require(dtt)
+   ycol <- which(names(data) == yName)
+   x <- as.matrix(data[,-ycol])
+   xdct <- mvdtt(x)[,1:nFreqs]
+
+   # replace "X" portion of 'data'
+   data <- dimRed(data,yName,xdct)
+
+   # construct the qe*() series call
+   mlcmd <- buildQEcall(qeFtnName,'data','labels',opts,holdout=holdout)
+
+   # execute the command and set result for return value
+   res$qeout <- eval(parse(text=mlcmd))
+   res$classNames <- levels(data[[yName]]))
+   res$testAcc <- res$qeout$testAcc
+   res$baseAcc <- res$qeout$baseAcc
+   class(res) <- c('drmlDCT',class(res$qeout))
+   res
 }
 
 ############################  MomentsHOG  ################################
