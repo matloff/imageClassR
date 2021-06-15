@@ -116,7 +116,7 @@ drmlDCT <- function(data,yName,
    require(dtt)
    ycol <- which(names(data) == yName)
    x <- as.matrix(data[,-ycol])
-   xdct <- mvdtt(x)[,1:nFreqs]
+   xdct <- dtt(x)[,1:nFreqs]  # not mvdtt
 
    # replace "X" portion of 'data'
    data <- dimRed(data,yName,xdct)
