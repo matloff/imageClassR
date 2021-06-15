@@ -122,8 +122,9 @@ drmlDCT <- function(data,yName,
    data <- dimRed(data,yName,xdct)
 
    # construct the qe*() series call
-   mlcmd <- buildQEcall(qeFtnName,'data','labels',opts,holdout=holdout)
+   mlcmd <- buildQEcall(qeFtnName,'data',yName,opts,holdout=holdout)
 
+   res <- list()  # ultimately the return value
    # execute the command and set result for return value
    res$qeout <- eval(parse(text=mlcmd))
    res$classNames <- levels(data[[yName]])
