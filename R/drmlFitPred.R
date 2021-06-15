@@ -126,7 +126,7 @@ drmlDCT <- function(data,yName,
 
    # execute the command and set result for return value
    res$qeout <- eval(parse(text=mlcmd))
-   res$classNames <- levels(data[[yName]]))
+   res$classNames <- levels(data[[yName]])
    res$testAcc <- res$qeout$testAcc
    res$baseAcc <- res$qeout$baseAcc
    class(res) <- c('drmlDCT',class(res$qeout))
