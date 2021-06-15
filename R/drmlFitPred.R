@@ -25,10 +25,10 @@
 
 ############################  TDAsweep  ###################################
 
-drmlTDAsweep <- function(data,yName,nr,nc,
+drmlTDAsweep <- function(data,yName,
    qeFtnName,opts=NULL,dataAug=NULL, 
    holdout=floor(min(1000,0.1*nrow(imgs))),
-   thresh=c(50,100,150),intervalWidth=2)
+   nr=0,nc=0,thresh=c(50,100,150),intervalWidth=2)
 {
    ycol <- which(names(data) == yName)
    imgs <- as.matrix(data[,-ycol])
