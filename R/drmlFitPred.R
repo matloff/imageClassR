@@ -12,7 +12,9 @@
 # uses the qe*() series from regtools
 
 # general arguments (followed by method-specific arguments, e.g.
-#    'thresh' for drmlTDAsweep):
+#    'thresh' for drmlTDAsweep, though the latter is modified below):
+
+#    thresh
 
 #    data: data from of pixel data, one row per image (each img in 1-D
 #       form), with a column for the labels
@@ -25,6 +27,10 @@
 
 ############################  TDAsweep  ###################################
 
+# 'thresh' argument is as in TDAsweepImgSet(), except that a negative
+# value will indicate partitioning [0,255] (255 hard coded for now) into
+# |thresh|+1 equal subintervals
+
 drmlTDAsweep <- function(data,yName,
    qeFtnName,opts=NULL,dataAug=NULL, 
    holdout=floor(min(1000,0.1*nrow(imgs))),
@@ -33,6 +39,13 @@ drmlTDAsweep <- function(data,yName,
    ycol <- which(names(data) == yName)
    imgs <- as.matrix(data[,-ycol])
    labels <- data[,ycol]
+
+   if (thresh < 0) {
+      thresh <- -thresh
+      increm <- 256 / (thresh+1)
+      thresh <- increm * (1:thresh)
+      thresh <- thresh
+   }  
 
    res <- list()  # eventual return value
    res$nr <- nr
@@ -99,10 +112,10 @@ drmlPCA <- function(data,yName,
 
 drmlUMAP <- function(data,yName,
    qeFtnName,opts=NULL,dataAug=NULL, 
-   holdout=floor(min(1000,0.1*nrow(data))))
+   holdout=floor(min(1000,0.1*nrow(data))),nComps=25)
 {
    qeUMAP(data,yName,qeName=qeFtnName,opts=opts,
-      holdout=holdout)
+      holdout=holdout,nComps=nComps)
 }
 
 ######################  discrete cos xform  ###########################
