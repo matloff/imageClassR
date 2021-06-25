@@ -17,7 +17,9 @@
 #    thresh
 
 #    data: data from of pixel data, one row per image (each img in 1-D
-#       form), with a column for the labels
+#       form), with a column for the labels; in the case of color
+#       images, one row of 'data' consists of the concatenation of the
+#       R, G and B vectors
 #    yName: name of colun R factor containing the class labels
 #    qeFtnName: ML function to be used after dimension reduction, e.g. 'qeSVM'
 #    opts: R list, containing optional arguments for the ML function
@@ -36,6 +38,7 @@ drmlTDAsweep <- function(data,yName,
    holdout=floor(min(1000,0.1*nrow(imgs))),
    nr=0,nc=0,thresh=c(50,100,150),intervalWidth=2)
 {
+   if (nr*nc != ncol(data) - 1) stop('mismatch in number of columns')
    ycol <- which(names(data) == yName)
    imgs <- as.matrix(data[,-ycol])
    labels <- data[,ycol]

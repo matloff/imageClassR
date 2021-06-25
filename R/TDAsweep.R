@@ -7,17 +7,19 @@
 
 # inputs an image in the form of a vector storing the image in row-major
 # order, WITHOUT labels; does horizontal and vertical sweeps, and
-# optinally verticla ones, outputting a vector of component counts
+# optionally diagonal ones, outputting a vector of component counts
 
 # nr and nc are the numbers of rows and cols in the image 
 
 # arguments:
 
-#    img: img in vector form (see above)
+#    img: img in vector form (see above); if color, then this is the
+#       concatenation of the R, G and B vectors
 #    nr:  number of rows in image
 #    nc:  number of cols in image
 #    thresh: vector of threshold values
 #    intervalWidth:  number of consecutive rows and columns to consolidate
+#    rcOnly:  row and column sweeping only, no diagonals
 
 # value:
 #
@@ -48,7 +50,6 @@ TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE)
    
       if (!rcOnly) {
          counts <- getNWSEdiags(img10vec,nr,nc)
-         # counts <- toIntervalMeans(counts,intervalWidth)
          tda <- c(tda,counts)
          counts <- getSWNEdiags(img10vec,nr,nc)
          # counts <- toIntervalMeans(counts,intervalWidth)
