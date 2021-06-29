@@ -3,7 +3,9 @@
 # set is run through a dimension reduction algorithm, say PCA, with the
 # output then fit by an ML algorithm
 
-# NOTE:  these all assume greyscale
+# NOTE:  Color case assumes data is concatenated by channel.  E.g.
+# 785-column MNIST training data is 65000 x 785 in grayscale, 
+# 65000 x # 2353 in RGB (one column for the labels)
 
 # high-level functions to provide a "turnkey" environment for image
 # analysts; input images matrix or data frame and the associated labels,
@@ -23,7 +25,10 @@
 #    yName: name of colun R factor containing the class labels
 #    qeFtnName: ML function to be used after dimension reduction, e.g. 'qeSVM'
 #    opts: R list, containing optional arguments for the ML function
-#    dataAug: specification of what data augmentation to do, if any,
+#    RGB: if color, then TRUE
+#    pixAug: specification of what data augmentation to do, if any,
+#       prior to applying dimension reduction
+#    tdasAug: specification of what data augmentation to do, if any,
 #       prior to applying dimension reduction
 #    holdout: as in all qe-series ML functions
 
@@ -34,16 +39,17 @@
 # |thresh|+1 equal subintervals
 
 drmlTDAsweep <- function(data,yName,
-   qeFtnName,opts=NULL,dataAug=NULL, 
+   qeFtnName,opts=NULL,RGB=FALSE,pixAug=0,tdasAug=0, 
    holdout=floor(min(1000,0.1*nrow(imgs))),
    nr=0,nc=0,thresh=c(50,100,150),intervalWidth=2)
 {
-   if (nr*nc != ncol(data) - 1) stop('mismatch in number of columns')
+   ncc <- (1 + 2*RGB) * nc
+   if (nr*ncc != ncol(data) - 1) stop('mismatch in number of columns')
    ycol <- which(names(data) == yName)
    imgs <- as.matrix(data[,-ycol])
    labels <- data[,ycol]
 
-   if (thresh < 0) {
+   if (thresh[1] < 0) {
       thresh <- -thresh
       increm <- 256 / (thresh+1)
       thresh <- increm * (1:thresh)
@@ -53,11 +59,13 @@ drmlTDAsweep <- function(data,yName,
    res <- list()  # eventual return value
    res$nr <- nr
    res$nc <- nc
+   res$RGB <- RGB
+   res$ncc <- ncc
    res$thresh <- thresh
    res$intervalWidth <- intervalWidth
 
    # fit TDAsweep
-   tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=nc,
+   tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=ncc,
       thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
 
    # must deal with constant columns, typically all-0, as many ML algs try to
@@ -88,9 +96,10 @@ predict.drmlTDAsweep <- function(object,newImages)
    newImages <- as.matrix(newImages)
    fakeLabels <- rep(object$classNames[1],nrow(newImages))
    tdaout <-
-      TDAsweepImgSet(imgs=newImages,labels=fakeLabels,nr=object$nr,nc=object$nc,
-      thresh=object$thresh,intervalWidth=object$intervalWidth,
-      rcOnly=TRUE)
+      TDAsweepImgSet(imgs=newImages,labels=fakeLabels,
+         nr=object$nr,nc=object$ncc,
+         thresh=object$thresh,intervalWidth=object$intervalWidth,
+         rcOnly=TRUE)
    tdaout <- tdaout[,-ncol(tdaout)]  # remove fake labels
 
    # remove whatever cols were deleted in the original fit
@@ -98,6 +107,14 @@ predict.drmlTDAsweep <- function(object,newImages)
    if (length(ccs) > 0) tdaout <- tdaout[,-ccs]
 
    predict(object$qeout,tdaout)  
+}
+
+# data augmentation at the TDAsweep level, i.e. more rows are added to
+# the TDAsweep output
+
+tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
+{
+
 }
 
 ############################  PCA  ###################################
