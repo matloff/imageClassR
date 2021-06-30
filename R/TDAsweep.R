@@ -28,7 +28,9 @@
 TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
 {
    
-   tda <- NULL
+   tdaRows <- NULL
+   tdaCols <- NULL
+   tdaDiags <- NULL
 
    for (threshi in thresh) {
 
@@ -40,27 +42,29 @@ TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE)
    
       counts <- NULL
       for (i in 1:nr) counts <- c(counts,findNumComps(img10[i,]))
-      # counts <- toIntervalMeans(counts,intervalWidth)
-      tda <- c(tda,counts)
+      counts <- toIntervalMeans(counts,intervalWidth)
+      tdaRows <- c(tdaRows,counts)
+      rowCountsEnd <- length(tdaRows)
    
       counts <- NULL
       for (i in 1:nc) counts <- c(counts,findNumComps(img10[,i]))
-      # counts <- toIntervalMeans(counts,intervalWidth)
-      tda <- c(tda,counts)
+      counts <- toIntervalMeans(counts,intervalWidth)
+      tdaCols <- c(tdaCols,counts)
+      colCountsEnd <- rowCountsEnd + length(tdaCols)
    
       if (!rcOnly) {
          counts <- getNWSEdiags(img10vec,nr,nc)
-         tda <- c(tda,counts)
+         tdaDiags<- c(tdaDiags,counts)
          counts <- getSWNEdiags(img10vec,nr,nc)
-         # counts <- toIntervalMeans(counts,intervalWidth)
-         tda <- c(tda,counts)
+         counts <- toIntervalMeans(counts,intervalWidth)
+         tdaDiags <- c(tdaDiags,counts)
       }
+
    }
 
-   # note: this average at boundaries, e.g. end of row counts and start
-   # of column counts, but convenient, and presumably only used for
-   # large images anyway
-   if (intervalWidth > 1) tda <- toIntervalMeans(tda,intervalWidth)
+   tda <- c(tdaRows,tdaCols,tdaDiags)
+   # add 2 fake elements, for communicating row, col counts ends
+   tda <- c(tda,rowCountsEnd,colCountsEnd)
    tda
 }
 
@@ -156,11 +160,18 @@ TDAsweepImgSet <-
       TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
          intervalWidth=intervalWidth,rcOnly=rcOnly)
    }
-   tda <- t(apply(imgs,1,fOneImg))
+   tmp <- apply(imgs,1,fOneImg)
+   tda <- t(tmp)
+   nctmp <- ncol(tda)
+   rowCountsEnd <- tda[1,nctmp-1]
+   colCountsEnd <- tda[1,nctmp]
+   tda <- tda[,-((nctmp-1):nctmp)]
    tda <- as.data.frame(tda)
    names(tda) <- paste0('T',1:ncol(tda))
    if (!is.factor(labels)) labels <- as.factor(labels)
    tda$labels <- labels
+   attr(tda,'rowCountsEnd') <- rowCountsEnd
+   attr(tda,'colCountsEnd') <- colCountsEnd
    tda
 }
 
