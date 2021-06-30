@@ -172,6 +172,7 @@ TDAsweepImgSet <-
    tda$labels <- labels
    attr(tda,'rowCountsEnd') <- rowCountsEnd
    attr(tda,'colCountsEnd') <- colCountsEnd
+   attr(tda,'thresh') <- thresh
    tda
 }
 

@@ -114,21 +114,31 @@ predict.drmlTDAsweep <- function(object,newImages)
 # data augmentation at the TDAsweep level, i.e. more rows are added to
 # the TDAsweep output
 
-# tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
-# {
-#    stop('not ready')
-#    # need TDAsweepOneImg to record in attribute the index of of the last
-#    # row count and the last col count; use here
-#    if (tdasOut$RGB) stop('color not implemented yet for data aug')
-#    nFlip <- round(0.5 * nTDAsweep)
-#    nrTDAS <- nrow(tdasOut)
-#    labelsCol <- nr+nc + 1
-#    # vertical flips
-#    idxs <- sample(1:nrtdas)
-#    imgRowRange <- 1:nr
-#    vFlipped <- tdasOut[idxs,
-# 
-# }
+tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
+{
+
+###  the code below is OK for a single threshold; need to put it in a loop;
+###  rowCountsEnd and colCountsEnd need to be adjusted for the number of
+###  thresholds; the sams rows should be used across thresholds
+
+   stop('not ready')
+   if (tdasOut$RGB) stop('color not implemented yet for data aug')
+   nrTDAS <- nrow(tdasOut)
+   rowCountsEnd <- attr(tda,'rowCountsEnd')
+   colCountsEnd <- attr(tda,'colCountsEnd')
+   labelsCol <- colCountsEnd + 1
+   # vertical flips
+   nVertFlip <- round(0.5 * nTDAsweep)
+   idxs <- sample(1:nrtdas,nVertFlip)
+   imgRowRange <- rowCountsEnd:1
+   vFlipped <- tdasOut[idxs,imgRowRange]
+   # horizontal flips (might have some overlap, not a bad thing)
+   nHorizFlip <- round(0.5 * nTDAsweep)
+   idxs <- sample(1:nrtdas,nHorizFlip)
+   imgColRange <- (rowCountsEnd+1):rowCountsEnd
+   vFlipped <- tdasOut[idxs,imgColRange]
+
+}
 
 ############################  PCA  ###################################
 
