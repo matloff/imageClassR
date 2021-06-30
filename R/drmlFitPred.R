@@ -28,8 +28,9 @@
 #    RGB: if color, then TRUE
 #    pixAug: specification of what data augmentation to do, if any,
 #       prior to applying dimension reduction
-#    tdasAug: specification of what data augmentation to do, if any,
-#       prior to applying dimension reduction
+#    tdasAug: specification of how much augmented data to generate, 
+#       after TDAsweep is applied; half will be vertical flips, after
+#       which horizontal flips will be done on the other half
 #    holdout: as in all qe-series ML functions
 
 ############################  TDAsweep  ###################################
@@ -60,6 +61,7 @@ drmlTDAsweep <- function(data,yName,
    res$nr <- nr
    res$nc <- nc
    res$RGB <- RGB
+   res$tdasAug <- tdasAug
    res$ncc <- ncc
    res$thresh <- thresh
    res$intervalWidth <- intervalWidth
@@ -112,10 +114,21 @@ predict.drmlTDAsweep <- function(object,newImages)
 # data augmentation at the TDAsweep level, i.e. more rows are added to
 # the TDAsweep output
 
-tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
-{
-
-}
+# tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
+# {
+#    stop('not ready')
+#    # need TDAsweepOneImg to record in attribute the index of of the last
+#    # row count and the last col count; use here
+#    if (tdasOut$RGB) stop('color not implemented yet for data aug')
+#    nFlip <- round(0.5 * nTDAsweep)
+#    nrTDAS <- nrow(tdasOut)
+#    labelsCol <- nr+nc + 1
+#    # vertical flips
+#    idxs <- sample(1:nrtdas)
+#    imgRowRange <- 1:nr
+#    vFlipped <- tdasOut[idxs,
+# 
+# }
 
 ############################  PCA  ###################################
 
