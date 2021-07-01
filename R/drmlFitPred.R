@@ -117,6 +117,9 @@ predict.drmlTDAsweep <- function(object,newImages)
 tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
 {
 
+   # tdasOut has 1 row per image; each row consists of nThresh sets of
+   # row counts, followed by nThresh sets of column counts for that
+   # image
 ###  the code below is OK for a single threshold; need to put it in a loop;
 ###  rowCountsEnd and colCountsEnd need to be adjusted for the number of
 ###  thresholds; the sams rows should be used across thresholds
