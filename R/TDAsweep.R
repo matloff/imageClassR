@@ -8,6 +8,7 @@
 # inputs an image in the form of a vector storing the image in row-major
 # order, WITHOUT labels; does horizontal and vertical sweeps, and
 # optionally diagonal ones, outputting a vector of component counts
+# for that image
 
 # nr and nc are the numbers of rows and cols in the image 
 
@@ -23,7 +24,15 @@
 
 # value:
 #
-#    vector of component counts 
+#    vector of component counts
+#
+#      format:
+#
+#          nThresh sets of row counts, then nThresh sets of col counts
+#          (nThresh = length(thresh))
+#
+#          finally, rowCountsEnd, colCountsEnd tacked on at the end; 
+#          used by the caller, and later removed
 
 TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
 {
@@ -162,6 +171,8 @@ TDAsweepImgSet <-
    }
    tmp <- apply(imgs,1,fOneImg)
    tda <- t(tmp)
+   # 'tda' form: see 'value' from TDAsweepOneImg above; nThresh sets of
+   # row counts, then nThresh sets of column counts; 2 fake columns
    nctmp <- ncol(tda)
    rowCountsEnd <- tda[1,nctmp-1]
    colCountsEnd <- tda[1,nctmp]
