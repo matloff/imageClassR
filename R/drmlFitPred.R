@@ -70,6 +70,8 @@ drmlTDAsweep <- function(data,yName,
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=ncc,
       thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
 
+   tdaout <- tdasweepAug(tdaout,nr,nc,intervalWidth,tdasAug)
+
    # must deal with constant columns, typically all-0, as many ML algs try to
    # scale the data and will balk; remove such columns, and make a note
    # so the same can be done during later prediction
@@ -124,7 +126,6 @@ tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
 ###  rowCountsEnd and colCountsEnd need to be adjusted for the number of
 ###  thresholds; the sams rows should be used across thresholds
 
-   stop('not ready')
    if (tdasOut$RGB) stop('color not implemented yet for data aug')
    nrtdas <- nrow(tdasOut)
    rowCountsEnd <- attr(tda,'rowCountsEnd')
@@ -164,7 +165,7 @@ tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
       newTDAS <- rbind(newTDAS,tdasOut[idxs,end:start])
    }
 
-   newTDAS
+   rbind(tdasOut,newTDAS)
 }
 
 ############################  PCA  ###################################
