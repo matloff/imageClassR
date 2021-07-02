@@ -69,6 +69,7 @@ drmlTDAsweep <- function(data,yName,
    # fit TDAsweep
    tdaout <- TDAsweepImgSet(imgs=imgs,labels=labels,nr=nr,nc=ncc,
       thresh=thresh,intervalWidth=intervalWidth,rcOnly=TRUE)
+   attr(tdaout,'RGB') <- RGB
 
    tdaout <- tdasweepAug(tdaout,nr,nc,intervalWidth,tdasAug)
 
@@ -116,53 +117,57 @@ predict.drmlTDAsweep <- function(object,newImages)
 # data augmentation at the TDAsweep level, i.e. more rows are added to
 # the TDAsweep output
 
-tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
+tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweepAug)
 {
 
    # tdasOut has 1 row per image; each row consists of nThresh sets of
    # row counts, followed by nThresh sets of column counts for that
    # image
-###  the code below is OK for a single threshold; need to put it in a loop;
-###  rowCountsEnd and colCountsEnd need to be adjusted for the number of
-###  thresholds; the sams rows should be used across thresholds
 
-   if (tdasOut$RGB) stop('color not implemented yet for data aug')
+   if (attr(tdasOut,'RGB')) stop('color not implemented yet for data aug')
    nrtdas <- nrow(tdasOut)
-   rowCountsEnd <- attr(tda,'rowCountsEnd')
-   colCountsEnd <- attr(tda,'colCountsEnd')
+   rowCountsEnd <- attr(tdasOut,'rowCountsEnd')
+   colCountsEnd <- attr(tdasOut,'colCountsEnd')
    nRowCounts <- rowCountsEnd
    nColCounts <- colCountsEnd - nRowCounts
-   thresh <- attr(tda,'thresh')
+   thresh <- attr(tdasOut,'thresh')
    nThresh <- length(thresh)
 
    # note: no diagonal counts, due to TDAsweep() call
    labelsCol <- colCountsEnd + 1
 
-   newTDAS <- NULL
+   # initialize the augmented data; to get the column names right,
+   # easiest just to use the original data!
+   newTDAS <- tdasOut[1,]
 
    # vertical flips
    # first, a sanity check
    if (nRowCounts %% nThresh != 0) stop('nRowCounts not divisible by nThresh')
-   nVertFlip <- round(0.5 * nTDAsweep)
+   nVertFlip <- round(0.5 * nTDAsweepAug)
    idxs <- sample(1:nrtdas,nVertFlip)
    # now do the flip once for each threshold level
    nRowCountsPerThresh <- nRowCounts / nThresh
    for (i in 1:nThresh) {
       start <- 1 + (i-1) * nRowCountsPerThresh
       end <- i * nRowCountsPerThresh
-      newTDAS <- rbind(newTDAS,tdasOut[idxs,end:start])
+      tmp <- tdasOut[idxs,]
+      tmp[,start:end] <- tdasOut[idxs,end:start]
+      colnames(tmp)[start:end] <- colnames(tdasOut[,start:end])
+      newTDAS <- rbind(newTDAS,tmp)
    }
 
    # horizontal flips (might have some overlap, not a bad thing)
    # first, a sanity check
    if (nColCounts %% nThresh != 0) stop('nColCounts not divisible by nThresh')
-   nHorizFlip <- round(0.5 * nTDAsweep)
+   nHorizFlip <- round(0.5 * nTDAsweepAug)
    idxs <- sample(1:nrtdas,nHorizFlip)
    nColCountsPerThresh <- nColCounts / nThresh
    for (i in 1:nThresh) {
       start <- nRowCounts + 1 + (i-1) * nColCountsPerThresh
       end <- i * nColCountsPerThresh
-      newTDAS <- rbind(newTDAS,tdasOut[idxs,end:start])
+      tmp[,start:end] <- tdasOut[idxs,end:start]
+      colnames(tmp)[start:end] <- colnames(tdasOut[,start:end])
+      newTDAS <- rbind(newTDAS,tmp)
    }
 
    rbind(tdasOut,newTDAS)
