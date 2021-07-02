@@ -184,6 +184,7 @@ TDAsweepImgSet <-
    attr(tda,'rowCountsEnd') <- rowCountsEnd
    attr(tda,'colCountsEnd') <- colCountsEnd
    attr(tda,'thresh') <- thresh
+   attr(tda,'rcOnly') <- rcOnly
    tda
 }
 
