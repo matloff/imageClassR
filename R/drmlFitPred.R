@@ -126,21 +126,45 @@ tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweep)
 
    stop('not ready')
    if (tdasOut$RGB) stop('color not implemented yet for data aug')
-   nrTDAS <- nrow(tdasOut)
+   nrtdas <- nrow(tdasOut)
    rowCountsEnd <- attr(tda,'rowCountsEnd')
    colCountsEnd <- attr(tda,'colCountsEnd')
+   nRowCounts <- rowCountsEnd
+   nColCounts <- colCountsEnd - nRowCounts
+   thresh <- attr(tda,'thresh')
+   nThresh <- length(thresh)
+
+   # note: no diagonal counts, due to TDAsweep() call
    labelsCol <- colCountsEnd + 1
+
+   newTDAS <- NULL
+
    # vertical flips
+   # first, a sanity check
+   if (nRowCounts %% nThresh != 0) stop('nRowCounts not divisible by nThresh')
    nVertFlip <- round(0.5 * nTDAsweep)
    idxs <- sample(1:nrtdas,nVertFlip)
-   imgRowRange <- rowCountsEnd:1
-   vFlipped <- tdasOut[idxs,imgRowRange]
+   # now do the flip once for each threshold level
+   nRowCountsPerThresh <- nRowCounts / nThresh
+   for (i in 1:nThresh) {
+      start <- 1 + (i-1) * nRowCountsPerThresh
+      end <- i * nRowCountsPerThresh
+      newTDAS <- rbind(newTDAS,tdasOut[idxs,end:start])
+   }
+
    # horizontal flips (might have some overlap, not a bad thing)
+   # first, a sanity check
+   if (nColCounts %% nThresh != 0) stop('nColCounts not divisible by nThresh')
    nHorizFlip <- round(0.5 * nTDAsweep)
    idxs <- sample(1:nrtdas,nHorizFlip)
-   imgColRange <- (rowCountsEnd+1):rowCountsEnd
-   vFlipped <- tdasOut[idxs,imgColRange]
+   nColCountsPerThresh <- nColCounts / nThresh
+   for (i in 1:nThresh) {
+      start <- nRowCounts + 1 + (i-1) * nColCountsPerThresh
+      end <- i * nColCountsPerThresh
+      newTDAS <- rbind(newTDAS,tdasOut[idxs,end:start])
+   }
 
+   newTDAS
 }
 
 ############################  PCA  ###################################
