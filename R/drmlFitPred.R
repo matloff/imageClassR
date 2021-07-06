@@ -124,7 +124,6 @@ tdasweepAug <- function(tdasOut,nr,nc,intervalWidth,nTDAsweepAug)
    # row counts, followed by nThresh sets of column counts for that
    # image
 
-   if (attr(tdasOut,'RGB')) stop('color not implemented yet for data aug')
    nrtdas <- nrow(tdasOut)
    rowCountsEnd <- attr(tdasOut,'rowCountsEnd')
    colCountsEnd <- attr(tdasOut,'colCountsEnd')
