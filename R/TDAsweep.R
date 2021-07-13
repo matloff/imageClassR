@@ -1,7 +1,9 @@
 
 # TDAsweep routines 
 
-# main function is TDAsweepImgSet(), which operates on a set of images
+# main function is TDAsweepImgSet(), which operates on a set of images;
+# it calls TDAsweepOneImg() on each image; there are various helper
+# functions
 
 ######################  TDAsweepOneImg()  ##############################
 
@@ -79,10 +81,11 @@ TDAsweepOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE)
 
 ######################  helper functions  ##############################
 
-# findNumComps():  finds the number of components in a ray
+# findNumComps():  finds the number of components in a vertical,
+# horizontal or diagonal ray
 
 # args:
-#    ray: a vector of counts, e.g. from one row of an image
+#    ray: a vector of 0-1 pixel values, e.g. from one row of an image
 
 # value: number of components found in this sweep
 
@@ -93,7 +96,8 @@ findNumComps <- function(ray)
    rayLength <- length(ray)
    tmp <- ray
    tmp0 <- c(0,tmp)
-   sum(tmp - tmp0[-(rayLength+1)] == 1)
+   tmp0 <- tmp0[-(rayLength+1)]
+   sum(tmp - tmp0 == 1)
 }
 
 # getNWSEdiags(), getSWNEdiags():  these find the numbers of component
