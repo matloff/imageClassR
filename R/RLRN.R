@@ -77,25 +77,6 @@ stop('under construction')
 
 ######################  helper functions  ##############################
 
-# findNumComps():  finds the number of components in a vertical,
-# horizontal or diagonal ray
-
-# args:
-#    ray: a vector of 0-1 pixel values, e.g. from one row of an image
-
-# value: number of components found in this sweep
-
-findNumComps <- function(ray)
-{
-   # components in tmp start wherever a 0 is followed by a 1, or with a
-   # 1 on the left end
-   rayLength <- length(ray)
-   tmp <- ray
-   tmp0 <- c(0,tmp)
-   tmp0 <- tmp0[-(rayLength+1)]
-   sum(tmp - tmp0 == 1)
-}
-
 # getNWSEdiags(), getSWNEdiags():  these find the numbers of component
 # counts in all NW-to-SE and SW-to-NE diagonals
 
@@ -188,26 +169,4 @@ RLRNImgSet <-
    attr(rlrn,'rcOnly') <- rcOnly
    attr(rlrn,'RGB') <- RGB
    rlrn
-}
-
-# used to find TDA-style components; 'ray' is a sequence of 1s and 0s; a
-# component is a sequence of conseecutive 1s; function returns a
-# 2-column matrix showing the start and stop points of components in
-# 'ray'
-
-findEndpointsOneRay <- function(ray) 
-{
-   if (sum(ray) == 0) return(NULL)
-   lngRay <- length(ray)
-   ray <- c(0,ray,0)  # to make sure have 0-1 and 1-0 transitions
-   rayShiftLeft <- c(ray[-1],0)
-   diffs <- rayShiftLeft - ray
-   starts <- which(diffs == 1)
-   ends <- which(diffs == -1) - 1
-   cbind(starts,ends)
-}
-
-findEndpointsOneImg <- function(img) 
-{
-
 }
