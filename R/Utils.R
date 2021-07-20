@@ -45,28 +45,41 @@ findEndpointsOneRay <- function(ray)
 
 findEndpointsOneImg <- function(img) 
 {
-   doOneRowCol <- function(ray) 
-   {
-      tmp <- findEndpointsOneRay(ray[-(nc+1)])
-      cbind(tmp,ray[nc+1])
+   doOneRowCol <- function(i)  {
+      if (rowcol == 'row') {
+         n <- nr
+         ray <- img1[i,]
+      } else {
+         n <- nc
+         ray <- img1[,i]
+      }
+      tmp <- findEndpointsOneRay(ray[-(n+1)])
+      cbind(tmp,ray[n+1])
    }
    nr <- nrow(img)
    nc <- ncol(img)
    img1 <- cbind(img,1:nr)
-   rowData <- t(apply(img1,1,doOneRowCol))
+   rowcol <- 'row'
+   rowData <- sapply(1:nr,doOneRowCol)
    rowData <- do.call(rbind,rowData)
-   rowData <- as.data.frame(t(rowData))
+   rowData <- as.data.frame(rowData)
    names(rowData) <- c('start','end','rcnum')
-   rowData$rc <- 'row'
+   rowData$rc <- rowcol
    browser()
-   colData <- t(apply(img,2,findEndpointsOneImg))
-   colData <- cbind(colData,1:ncol(img))
-   colData <- as.data.frame(t(colData))
+   img1 <- rbind(img,1:nc)
+   rowcol <- 'col'
+   colData <- sapply(1:nc,doOneRowCol)
+   colData <- do.call(rbind,colData)
+   colData <- as.data.frame(colData)
    names(colData) <- c('start','end','rcnum')
-   colData$rc <- 'col'
+   colData$rc <- rowcol
+
    rbind(rowData,colData)
 }
 
+#######################################################################
+###########################  misc. ####################################
+#######################################################################
 
 # for dimension reduction; the "X" portion of d, i.e. not yName, will be
 # replaced by newCols
