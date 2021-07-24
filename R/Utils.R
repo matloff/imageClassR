@@ -1,4 +1,11 @@
 
+# contents:
+
+#    1.  Components helpers, for TDAsweep, RLRN.
+# 
+#    2.  Misc.
+
+
 #####################################################################
 ####################  components helpers  ###########################
 #####################################################################
@@ -40,33 +47,37 @@ findEndpointsOneRay <- function(ray)
 }
 
 # apply findEndpointsOneRay() to full image, assumed in matrix form; rows
-# and columns only, no diagonals; 4-column data frame output, consisting
-# of start point, end point, row/col number, and 'r' or 'c' for row or column
+# and columns only, no diagonals; note: img must already be thresholded,
+# thus consisting only of 0s and 1s
+
+# 4-column data frame output, consisting of start point, end point,
+# row/col number, and 'row' or 'col' 
 
 findEndpointsOneImg <- function(img) 
 {
    doOneRowCol <- function(i)  {
       if (rowcol == 'row') {
-         n <- nr
-         ray <- img1[i,]
-      } else {
          n <- nc
-         ray <- img1[,i]
+         ray <- img[i,-(nc+1)]
+      } else {
+         n <- nr
+         ray <- img[,i]
       }
-      tmp <- findEndpointsOneRay(ray[-(n+1)])
-      cbind(tmp,ray[n+1])
+      tmp <- findEndpointsOneRay(ray)
+      cbind(tmp,i)  # tack on to each endpt the row/col number 
    }
    nr <- nrow(img)
    nc <- ncol(img)
-   img1 <- cbind(img,1:nr)
+
+   # process the rows
    rowcol <- 'row'
    rowData <- sapply(1:nr,doOneRowCol)
    rowData <- do.call(rbind,rowData)
    rowData <- as.data.frame(rowData)
    names(rowData) <- c('start','end','rcnum')
    rowData$rc <- rowcol
-   browser()
-   img1 <- rbind(img,1:nc)
+
+   # process the columns
    rowcol <- 'col'
    colData <- sapply(1:nc,doOneRowCol)
    colData <- do.call(rbind,colData)
