@@ -4,9 +4,8 @@
 ######################  RLRNOneImg()  ##############################
 
 # inputs an image in the form of a vector storing the image in row-major
-# order, WITHOUT labels; does horizontal and vertical sweeps, and
-# optionally diagonal ones, outputting a vector of component counts
-# for that image
+# order, WITHOUT labels; does horizontal and vertical sweeps (but not
+# diagonals), outputting a vector of component counts for that image
 
 # nr and nc are the numbers of rows and cols in the image 
 
@@ -16,9 +15,9 @@
 #       concatenation of the R, G and B vectors
 #    nr:  number of rows in image
 #    nc:  number of cols in image
-#    thresh: vector of threshold values
+#    thresh: vector of threshold values; if negative, then [0,255] is
+#       divided in equal subinternvals; see TDAsweep()
 #    intervalWidth:  number of consecutive rows and columns to consolidate
-#    rcOnly:  row and column sweeping only, no diagonals
 
 # value:
 #
@@ -32,7 +31,7 @@
 #          finally, rowCountsEnd, colCountsEnd tacked on at the end; 
 #          used by the caller, and later removed
 
-RLRNOneImg <- function(img,nr,nc,thresh,intervalWidth=1,rcOnly=TRUE) 
+RLRNOneImg <- function(img,nr,nc,thresh,intervalWidth=1) 
 {
 stop('under construction')   
    rlrnRows <- NULL
@@ -48,7 +47,11 @@ stop('under construction')
       img10 <- matrix(img10,ncol=nc,byrow=TRUE)
    
       counts <- NULL
-      for (i in 1:nr) counts <- c(counts,findNumComps(img10[i,]))
+      for (i in 1:nr) 
+      
+      
+      
+      counts <- c(counts,findNumComps(img10[i,]))
       counts <- toIntervalMeans(counts,intervalWidth)
       rlrnRows <- c(rlrnRows,counts)
       rowCountsEnd <- length(rlrnRows)
