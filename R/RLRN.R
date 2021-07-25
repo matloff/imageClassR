@@ -1,6 +1,9 @@
 
 # RLRN routines 
 
+# somewhat different from standard, in that we count number of
+# consecutive pixels about the given threshold, rather than equal to it
+
 ######################  RLRNOneImg()  ##############################
 
 # inputs an image in the form of a vector storing the image in row-major
@@ -31,12 +34,10 @@
 #          finally, rowCountsEnd, colCountsEnd tacked on at the end; 
 #          used by the caller, and later removed
 
-RLRNOneImg <- function(img,nr,nc,thresh,intervalWidth=1) 
+RLRNOneImg <- function(img,nr,nc,thresh) 
 {
-stop('under construction')   
-   rlrnRows <- NULL
-   rlrnCols <- NULL
-   rlrnDiags <- NULL
+
+   endptPairs <- NULL
 
    for (threshi in thresh) {
 
@@ -46,36 +47,17 @@ stop('under construction')
       img10vec <- img10
       img10 <- matrix(img10,ncol=nc,byrow=TRUE)
    
-      counts <- NULL
-      for (i in 1:nr) 
+      endptPairs <- rbind(endptPairs,findEndpointsOneImg(img10))
       
-      
-      
-      counts <- c(counts,findNumComps(img10[i,]))
-      counts <- toIntervalMeans(counts,intervalWidth)
-      rlrnRows <- c(rlrnRows,counts)
-      rowCountsEnd <- length(rlrnRows)
-   
-      counts <- NULL
-      for (i in 1:nc) counts <- c(counts,findNumComps(img10[,i]))
-      counts <- toIntervalMeans(counts,intervalWidth)
-      rlrnCols <- c(rlrnCols,counts)
-      colCountsEnd <- rowCountsEnd + length(rlrnCols)
-   
-      if (!rcOnly) {
-         counts <- getNWSEdiags(img10vec,nr,nc)
-         rlrnDiags<- c(rlrnDiags,counts)
-         counts <- getSWNEdiags(img10vec,nr,nc)
-         counts <- toIntervalMeans(counts,intervalWidth)
-         rlrnDiags <- c(rlrnDiags,counts)
-      }
-
    }
 
-   rlrn <- c(rlrnRows,rlrnCols,rlrnDiags)
-   # add 2 fake elements, for communicating row, col counts ends
-   rlrn <- c(rlrn,rowCountsEnd,colCountsEnd)
+   compLengths <- endptPairs[,2] - endptPairs[,1]
+   counts <- table(compLengths)
+   rlrn <- rep(0,nr+nc)
+   names(rlrn) <- 1:(nr+nc)
+   rlrn[names(counts)] <- counts
    rlrn
+
 }
 
 ######################  helper functions  ##############################

@@ -55,6 +55,7 @@ findEndpointsOneRay <- function(ray)
 
 findEndpointsOneImg <- function(img) 
 {
+browser()
    doOneRowCol <- function(i)  {
       if (rowcol == 'row') {
          n <- nc
