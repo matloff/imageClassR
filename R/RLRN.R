@@ -56,7 +56,9 @@ RLRNOneImg <- function(img,nr,nc,thresh)
       img10 <- matrix(img10,ncol=nc,byrow=TRUE)
 
       eps <- findEndpointsOneImg(img10)
-      compLengths <- eps[,2] - eps[,1]
+      compLengths <- rep(0,nrow(eps))
+      nonZero <- which(eps[,1] != 0)
+      compLengths[nonZero] <- eps[nonZero,2] - eps[nonZero,1] + 1
       counts <- table(compLengths)
       rlrni <- rep(0,m)
       names(rlrni) <- 1:m

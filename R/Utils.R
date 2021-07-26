@@ -75,7 +75,7 @@ findEndpointsOneImg <- function(img)
 
    # process the rows
    rowcol <- 'row'
-   rowData <- sapply(1:nr,doOneRowCol)
+   rowData <- lapply(1:nr,doOneRowCol)
    rowData <- do.call(rbind,rowData)
    rowData <- as.data.frame(rowData)
    names(rowData) <- c('start','end','rcnum')
@@ -83,7 +83,7 @@ findEndpointsOneImg <- function(img)
 
    # process the columns
    rowcol <- 'col'
-   colData <- sapply(1:nc,doOneRowCol)
+   colData <- lapply(1:nc,doOneRowCol)
    colData <- do.call(rbind,colData)
    colData <- as.data.frame(colData)
    names(colData) <- c('start','end','rcnum')
