@@ -37,7 +37,15 @@
 RLRNOneImg <- function(img,nr,nc,thresh) 
 {
 
-   endptPairs <- NULL
+   if (thresh[1] < 0) {
+      thresh <- -thresh
+      increm <- 256 / (thresh+1)
+      thresh <- increm * (1:thresh)
+      thresh <- thresh
+   }
+
+   rlrn <- NULL
+   m <- max(nr,nc) + 1  # +1 for the 0 case
 
    for (threshi in thresh) {
 
@@ -46,17 +54,18 @@ RLRNOneImg <- function(img,nr,nc,thresh)
       img10 <- as.integer(img >= threshi)
       img10vec <- img10
       img10 <- matrix(img10,ncol=nc,byrow=TRUE)
+
+      eps <- findEndpointsOneImg(img10)
+      compLengths <- eps[,2] - eps[,1]
+      counts <- table(compLengths)
+      rlrni <- rep(0,m)
+      names(rlrni) <- 1:m
+      rlrni[names(counts)] <- counts
    
-      endptPairs <- rbind(endptPairs,findEndpointsOneImg(img10))
+      rlrn <- c(rlrn,rlrni)
       
    }
 
-   compLengths <- endptPairs[,2] - endptPairs[,1]
-   counts <- table(compLengths)
-   m <- max(nr,nc) + 1  # +1 for the 0 case
-   rlrn <- rep(0,m)
-   names(rlrn) <- 1:m
-   rlrn[names(counts)] <- counts
    rlrn
 
 }
