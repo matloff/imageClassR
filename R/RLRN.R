@@ -56,6 +56,10 @@ RLRNOneImg <- function(img,nr,nc,thresh)
       img10 <- matrix(img10,ncol=nc,byrow=TRUE)
 
       eps <- findEndpointsOneImg(img10)
+      # need to make sure we get a 0 count
+      zeroRows <- (eps[,1] == 0 & eps[,2] == 0)
+      if (sum(zeroRows) == 0) 
+         eps <- rbind(eps,data.frame(start=0,end=0,rcnum=1,rc='rpw'))
       compLengths <- rep(0,nrow(eps))
       nonZero <- which(eps[,1] != 0)
       compLengths[nonZero] <- eps[nonZero,2] - eps[nonZero,1] + 1
@@ -70,6 +74,16 @@ RLRNOneImg <- function(img,nr,nc,thresh)
 
    rlrn
 
+}
+
+#######################  RLRNImgSet()  ############################
+
+# imgSet is a matrix, one image stored per row
+
+RLRNImgSet <- function(imgSet,nr,nc,thresh) 
+{
+   oneimg <- function(img) RLRNOneImg(img,nr,nc,thresh)
+   t(apply(imgSet,1,oneimg))
 }
 
 ######################  helper functions  ##############################
@@ -131,39 +145,3 @@ toIntervalMeans <- function(countVec,intervalWidth)
    apply(mat,1,mean)
 }
 
-#######################  RLRNImgSet()  ############################
-
-# the main function
-
-# this routine sweeps through all images in a matrix 'imgs', one image
-# per row; 'labels' is the associated labels, as a vector or factor a
-# data frame is returned, with col names 'T1', 'T2', ... and finally
-# 'labels' 
-
-RLRNImgSet <- 
-   function(imgs,labels,nr,nc,thresh=c(50,100,150),intervalWidth=2,
-      RGB=FALSE,rcOnly=TRUE) 
-{
-   fOneImg <- function(oneImg) {
-      TDAsweepOneImg(img=oneImg,nr=nr,nc=nc,thresh=thresh,
-         intervalWidth=intervalWidth,rcOnly=rcOnly)
-   }
-   tmp <- apply(imgs,1,fOneImg)
-   rlrn <- t(tmp)
-   # 'rlrn' form: see 'value' from TDAsweepOneImg above; nThresh sets of
-   # row counts, then nThresh sets of column counts; 2 fake columns
-   nctmp <- ncol(rlrn)
-   rowCountsEnd <- rlrn[1,nctmp-1]
-   colCountsEnd <- rlrn[1,nctmp]
-   rlrn <- rlrn[,-((nctmp-1):nctmp)]
-   rlrn <- as.data.frame(rlrn)
-   names(rlrn) <- paste0('T',1:ncol(rlrn))
-   if (!is.factor(labels)) labels <- as.factor(labels)
-   rlrn$labels <- labels
-   attr(rlrn,'rowCountsEnd') <- rowCountsEnd
-   attr(rlrn,'colCountsEnd') <- colCountsEnd
-   attr(rlrn,'thresh') <- thresh
-   attr(rlrn,'rcOnly') <- rcOnly
-   attr(rlrn,'RGB') <- RGB
-   rlrn
-}
