@@ -53,8 +53,9 @@ RLRNOneImg <- function(img,nr,nc,thresh)
 
    compLengths <- endptPairs[,2] - endptPairs[,1]
    counts <- table(compLengths)
-   rlrn <- rep(0,nr+nc)
-   names(rlrn) <- 1:(nr+nc)
+   m <- max(nr,nc) + 1  # +1 for the 0 case
+   rlrn <- rep(0,m)
+   names(rlrn) <- 1:m
    rlrn[names(counts)] <- counts
    rlrn
 

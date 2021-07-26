@@ -36,13 +36,17 @@ findNumComps <- function(ray)
 
 findEndpointsOneRay <- function(ray) 
 {
-   if (sum(ray) == 0) return(c(0,0))
-   lngRay <- length(ray)
-   ray <- c(0,ray,0)  # to make sure have 0-1 and 1-0 transitions
-   rayShiftLeft <- c(ray[-1],0)
-   diffs <- rayShiftLeft - ray
-   starts <- which(diffs == 1)
-   ends <- which(diffs == -1) - 1
+   if (sum(ray) == 0) {
+      starts <- 0
+      ends <- 0
+   } else {
+      lngRay <- length(ray)
+      ray <- c(0,ray,0)  # to make sure have 0-1 and 1-0 transitions
+      rayShiftLeft <- c(ray[-1],0)
+      diffs <- rayShiftLeft - ray
+      starts <- which(diffs == 1)
+      ends <- which(diffs == -1) - 1
+   }
    cbind(starts,ends)
 }
 
@@ -55,7 +59,6 @@ findEndpointsOneRay <- function(ray)
 
 findEndpointsOneImg <- function(img) 
 {
-browser()
    doOneRowCol <- function(i)  {
       if (rowcol == 'row') {
          n <- nc
@@ -72,7 +75,7 @@ browser()
 
    # process the rows
    rowcol <- 'row'
-   rowData <- t(sapply(1:nr,doOneRowCol))
+   rowData <- sapply(1:nr,doOneRowCol)
    rowData <- do.call(rbind,rowData)
    rowData <- as.data.frame(rowData)
    names(rowData) <- c('start','end','rcnum')
@@ -80,7 +83,7 @@ browser()
 
    # process the columns
    rowcol <- 'col'
-   colData <- t(sapply(1:nc,doOneRowCol))
+   colData <- sapply(1:nc,doOneRowCol)
    colData <- do.call(rbind,colData)
    colData <- as.data.frame(colData)
    names(colData) <- c('start','end','rcnum')
