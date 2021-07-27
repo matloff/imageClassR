@@ -5,7 +5,7 @@
 
 # NOTE:  Color case assumes data is concatenated by channel.  E.g.
 # 785-column MNIST training data is 65000 x 785 in grayscale, 
-# 65000 x # 2353 in RGB (one column for the labels)
+# 65000 x 2353 in RGB (one column for the labels)
 
 # high-level functions to provide a "turnkey" environment for image
 # analysts; input images matrix or data frame and the associated labels,
