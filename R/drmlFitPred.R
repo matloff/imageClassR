@@ -114,6 +114,66 @@ predict.drmlTDAsweep <- function(object,newImages)
    predict(object$qeout,tdaout)  
 }
 
+############################  RLRN  ###################################
+
+# 'thresh' argument is as in TDAsweepImgSet(), except that a negative
+# value will indicate partitioning [0,255] (255 hard coded for now) into
+# |thresh|+1 equal subintervals
+
+drmlRLRN <- function(data,yName,
+   qeFtnName,opts=NULL,RGB=FALSE,pixAug=0,
+   holdout=floor(min(1000,0.1*nrow(imgs))),
+   nr=0,nc=0,thresh=c(50,100,150))
+{
+   ncc <- (1 + 2*RGB) * nc
+   if (nr*ncc != ncol(data) - 1) stop('mismatch in number of columns')
+   ycol <- which(names(data) == yName)
+   imgs <- as.matrix(data[,-ycol])
+   labels <- data[,ycol]
+
+   if (thresh[1] < 0) {
+      thresh <- -thresh
+      increm <- 256 / (thresh+1)
+      thresh <- increm * (1:thresh)
+      thresh <- thresh
+   }  
+
+   res <- list()  # eventual return value
+   res$nr <- nr
+   res$nc <- nc
+   res$RGB <- RGB
+   res$ncc <- ncc
+   res$thresh <- thresh
+
+   # fit RLRN
+   rlrnout <- RLRNImgSet(data[,-ycol],nr,nc,thresh)
+   colnames(rlrnout) <-  paste0('V',1:ncol(rlrnout))
+   attr(rlrnout,'RGB') <- RGB
+
+   # constant columns
+   ccs <- constCols(rlrnout)
+   res$constCols <- ccs
+   if (length(ccs) > 0) {
+      rlrnout <- rlrnout[,-ccs]
+      warning('constant columns have been removed from the input data')
+   }  
+
+   rlrnout <- as.data.frame(rlrnout)
+   rlrnout[[yName]] <- data[[yName]]
+
+   # construct the qe*() series call
+   mlcmd <- buildQEcall(qeFtnName,'rlrnout',yName,opts,holdout=holdout)
+
+   # execute the command and set result for return value
+   res$qeout <- eval(parse(text=mlcmd))
+   res$classNames <- levels(rlrnout$labels)
+   res$testAcc <- res$qeout$testAcc
+   res$baseAcc <- res$qeout$baseAcc
+   class(res) <- c('drmlTDAsweep',class(res$qeout))
+   res
+}
+
+
 # data augmentation at the TDAsweep level, i.e. more rows are added to
 # the TDAsweep output
 
