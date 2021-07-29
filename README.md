@@ -12,6 +12,11 @@ Includes the novel **TDAsweep** method.
 The package consists of two main function groups (as well as misc.
 utilities).
 
+Each function returns an S3 object with various components, including
+**testAcc**, the error rate in the holdout set.  Each function also
+has a paired generic **predict()** function for predicting new images.
+
+
 ### drml\*()
 
 These functions implement an approach we call DR + ML, meaning one
@@ -35,7 +40,7 @@ Choices for DR:
 
 * TDAsweep
 
-* moments/Hisrogram of Oriented Gradients (HOG)
+* Discrete Cosine Transform (DCT)
 
 * Run Length Run Number (RLRN)
 
@@ -66,11 +71,22 @@ with those of the NN part.
 Image-related wrappers, using R **keras** package, with
 **regtools::krsFit()** as intermediary.
 
+* **kerasConv():** Basic CNN, user-supplied convolutional and dense
+  layers.
+
 ## TDAsweep
 
 ### Intuition
 
-Inspired from Topological Data Analysis, TDAsweep defines components in a more simplified way. Specifically, TDAsweep casts thresholding on the original image (each pixel value above the threshold will be denoted as 1 and 0 otherwise). Then, TDAsweep counts contiguous components in horizontal, vertical, and the two diagonal directions of a pixel matrix. The counts of the components in each direction will serve as the new set of features describing the original image.
+Inspired from Topological Data Analysis and RLRN, TDAsweep defines
+components in terms of rows and columns of an image.  Specifically, the
+original image is thresholded, i.e. each pixel value above the threshold
+will be denoted as 1 and 0 otherwise. Then, TDAsweep counts contiguous
+components in the horizontal and vertical directions of a pixel matrix.
+(The software allows diagonal counts as well, but these are generally
+less useful.) The counts of the components in each direction will serve
+as the new, dimension-reduced set of features describing the original
+image.
 
 An example should help illustrate the process more clearly:
 
@@ -89,18 +105,8 @@ An example of counting the components for each rows would be:
 
 Here, [3,2,4] will be included as the new set of features. We repeat this process for columns and the two diagonal directions (NW to SE and NE to SW).
 
-The typical pattern involved is:
+**This method is fast (and quite amenable to GPU) and non-iterative.**
 
-1.  Perform dimension reduction, by some means -- PCA, the 'C' in "CNN,"
-our **TDAsweep** presented here, etc.
+# Examples
 
-2.  Feed the results of 1) above into one's favorite machine learning
-    method, such as NNs, SVM, logit or random forests.
-
-A fast, non-iterative method for dimension reduction of images would be
-quite useful.
-
-# QUICK START
-
-(under construction)
 

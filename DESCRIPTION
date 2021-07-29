@@ -1,9 +1,9 @@
 Package: imageClassR
 Version: 1.1.0
-Title: Quick and Convenient Functions for Image Classification
+Title: Quick and Easy Functions for Image Classification
 Author: Norm Matloff (cre,aut), Melissa Goh (aut), Yu-Shih Chen (aut)
 Maintainer: Norm Matloff <matloff@cs.ucdavis.edu>
-Depends: R (>= 3.5.0),regtools,partools
+Depends: R (>= 3.5.0),regtools,qeML,partools
 License: GPL (>= 2)
 Description: Image classification methods.  Includes a novel approach using 
    Topological Data Analysis.
