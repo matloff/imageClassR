@@ -8,7 +8,8 @@ Includes the novel **TDAsweep** method.
 
 ## Function Groups
 
-The package consists of two main function groups.
+The package consists of two main function groups (as well as misc.
+utilities).
 
 ### drml\*()
 
@@ -25,8 +26,33 @@ Using TDA in the image contenxt, one is able to perform dimension
 reduction on a dataset to improve runtime of the analysis as well as to
 avoid the risk of overfitting. More details below.
 
-In addition to offering as DR methods PCA and TDAsweep, we also offer
-UMAP, moments/HOG and RLRN.
+Choices for DR:
+
+* Principal Components Analysis (PCA)
+
+* Uniform Manifold Approximation and Projection (UMAP)
+
+* TDAsweep
+
+* moments/Hisrogram of Oriented Gradients (HOG)
+
+* Run Length Run Number (RLRN)
+
+For the ML portion, one my use any in the **qeML** package. including
+
+* k-NN
+
+* SVM
+
+* random forests (several implementations)
+
+* neural networks
+
+* gradient boosting
+
+* Adaboost
+
+* logistic model
 
 Note that CNN is not quite a DR+ML method.  One might describe it as
 C + NN, where C represents the convolutional layers
