@@ -109,4 +109,12 @@ Here, [3,2,4] will be included as the new set of features. We repeat this proces
 
 # Examples
 
-
+``` r
+data(hm)  # histology slide daa
+# TDAsweep + random forests; images are 28x28; use 7 threshold levels,
+# 5000 augmented images
+drmlTDAsweep(data=hm,yName='label',qeFtnName='qeRF',nr=28,nc=28,
+   thresh=-7,tdasAug=5000)$testAcc
+# 0.06
+# 6% error rate on holdout set
+```
