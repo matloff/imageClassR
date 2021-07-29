@@ -12,6 +12,7 @@
 #    xShape: number of rows, cols, channels per image
 #    hidden: dense layers
 #    RGB: if TRUE, color, otherwise grayscale
+#    krsFit args
 
 #######################################################################
 #######################  kerasConv  ###################################
