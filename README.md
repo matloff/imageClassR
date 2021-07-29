@@ -1,7 +1,8 @@
 # imageClassR
 
 Quick and Easy tools for image classification, in the spirit of the
-**qeML** package of Quick and Easy tools for machine learning.
+**qeML** package of Quick and Easy tools for machine learning.  Simple,
+uniform APIs similar to **qeML**.
 
 Includes the novel **TDAsweep** method.
 
@@ -61,6 +62,9 @@ independently, as the weights in the C portion are computed in tandem
 with those of the NN part.
 
 ### keras\*()
+
+Image-related wrappers, using R **keras** package, with
+**regtools::krsFit()** as intermediary.
 
 ## TDAsweep
 
