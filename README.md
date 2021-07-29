@@ -1,39 +1,40 @@
 # imageClassR
 
-UNDER CONSTRUCTION
+Quick and Easy tools for image classification, in the spirit of the
+**qeML** package of Quick and Easy tools for machine learning.
+
+Includes the novel **TDAsweep** method.
 
 
+## Function Groups
 
-## Overview
+The package consists of two main function groups.
 
-This package serves as a convenient, one-stop site for image
-classification in R, enabling easy exploration of various standard
-methods.  In addition, a new method, TDAsweep, is introduced.
+### drml\*()
 
-Currently a popular method for image classification is Convolutional
-Neural Networks (CNN).  It provides a general technique, and when
-properly tuned, can be quite powerful.
-
-The key phrase here, though, is "properly tuned."  CNNs have many
-hyperparameters, and finding the proper combination can be quite
-difficult and extremely time-consuming.  In some applications,
-alternative approaches may be desirable.
-
-Thus, while the package will provide easy interface to standard CNN
-architectures, it also takes an approach we call DR + ML, meaning one
+These functions implement an approach we call DR + ML, meaning one
 first applies a dimension reduction method, then applies a standard
 machine learning algorithm on the lower-dimensional data.
 
 For instance, one might take DR = PCA and ML = SVM; we apply SVM to the
-lower-dimensional data obtained by PCA.  CNN may be viewed as a special
-case, described as C + NN.  Here C represents the convolutional layers
-and NN the dense ones.
+lower-dimensional data obtained by PCA.  
 
-We feature TDAsweep, a novel method for image classification using
-[Topological Data Analysis (TDA)](Slides.pdf). Using TDA in the image
-contenxt, one is able to perform dimension reduction on a dataset to
-improve runtime of the analysis as well as to avoid the risk of
-overfitting. 
+Our featured DR method is TDAsweep, a novel method for image
+classification using [Topological Data Analysis (TDA)](Slides.pdf).
+Using TDA in the image contenxt, one is able to perform dimension
+reduction on a dataset to improve runtime of the analysis as well as to
+avoid the risk of overfitting. More details below.
+
+In addition to offering as DR methods PCA and TDAsweep, we also offer
+UMAP, moments/HOG and RLRN.
+
+Note that CNN is not quite a DR+ML method.  One might describe it as
+C + NN, where C represents the convolutional layers
+and NN the dense ones.  However, the two "summands" here do not operate
+independently, as the weights in the C portion are computed in tandem
+with those of the NN part.
+
+### keras\*()
 
 ## TDAsweep
 
