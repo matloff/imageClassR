@@ -93,6 +93,55 @@ findEndpointsOneImg <- function(img)
 }
 
 #######################################################################
+#####################  data augmentation ##############################
+#######################################################################
+
+# arguments:
+
+
+#    img: image, a matrix
+#    nVFlip: number of vertical flips
+#    nHFlip: number of horizontal flips
+#    nShift: number of shifts; h,v done separately
+#    maxShift: for b, h,v shift each random from [-b,b]
+
+dataAug <- function(img,nVFlip,nHFlip,nShift,maxShift) 
+{
+   nr <- nrow(img)
+   nc <- ncol(img)
+   res <- NULL
+
+   if (nVFlip > 0) {
+      for (i in seq(1,nVFlip,1)) {
+         tmp <- img[nr:1,]
+         res <- rbind(res,tmp)
+      }
+   }
+
+   if (nHFlip > 0) {
+      for (u in seq(1,nHFlip,1)) {
+         tmp <- img[,nc:1]
+         res <- rbind(res,tmp)
+         }
+   }
+
+   if (maxShift > 0) {
+   }
+   b <- maxShift
+   v <- sample(-b:b,nShift)
+   h <- sample(-b:b,nShift)
+   zeros <- matrix(rep(0,b*nc,ncol=nc))
+   img1 <- rbind(tmp,img,tmp)
+   for (i in seq(1,nShift,1)) {
+      r <- sample(-b:b,1) - 1
+      tmp <- img1[(1+r):(nc+r),]
+      res <- rbind(res,tmp)
+   }
+
+   res
+}
+
+#######################################################################
 ###########################  misc. ####################################
 #######################################################################
 
