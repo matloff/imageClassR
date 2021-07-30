@@ -108,14 +108,14 @@ findEndpointsOneImg <- function(img)
 dataAug <- function(imgSet,nr,nc,nVFlip,nHFlip,nShift,maxShift) 
 {
    res <- NULL
-stop('not working yet')
+
    if (nVFlip > 0) {
       for (i in 1:nVFlip) {
          j <- sample(1:nr)
          img <- imgSet[j,]
          img <- unlist(img)
          img <- matrix(img,byrow=TRUE,nrow=nr)
-         tmp <- matrix(img[nr:1,],byrow=TRUE,nrow=1)
+         tmp <- matrix(img[nr:1,],nrow=1)
          res <- rbind(res,tmp)
       }
    }
