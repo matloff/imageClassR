@@ -105,33 +105,39 @@ findEndpointsOneImg <- function(img)
 #    nShift: number of shifts; h,v done separately
 #    maxShift: for b, h,v shift each random from [-b,b]
 
-dataAug <- function(imgSet,nr,nc,nVFlip,nHFlip,nShift,maxShift) 
+dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0) 
 {
    res <- NULL
 
    if (nVFlip > 0) {
       for (i in 1:nVFlip) {
-         j <- sample(1:nr)
+         j <- sample(1:nr,1)
          img <- imgSet[j,]
-         img <- unlist(img)
-         img <- matrix(img,byrow=TRUE,nrow=nr)
-         tmp <- matrix(img[nr:1,],nrow=1)
+         img <- unlist(img)  # imgSet may be a data frame
+         img <- matrix(img,byrow=TRUE,nrow=nr)  # images in row-major
+         img <- img[nr:1,]
+         tmp <- matrix(t(img),nrow=1)
          res <- rbind(res,tmp)
       }
    }
 
    if (nHFlip > 0) {
       for (i in 1:nHFlip) {
-         j <- sample(1:nr)
+         j <- sample(1:nr,1)
          img <- imgSet[j,]
          img <- unlist(img)
          img <- matrix(img,byrow=TRUE,nrow=nr)
-         tmp <- matrix(img[,nc:1],TRUE,nrow=1)
+         img <- img[,nc:1]
+         tmp <- matrix(t(img),nrow=1)
          res <- rbind(res,tmp)
       }
    }
 
    if (maxShift > 0) {
+      # basic idea:  the shift will result in 0s in the portion of the
+      # matrix "vacated" by the shift; handle this by creating a
+      # supermatrix with 0s built in, then shift the original matrix
+      # within it
       b <- maxShift
       zeros <- matrix(rep(0,b*nc,ncol=nc))
       for (i in 1:nHFlip) {
