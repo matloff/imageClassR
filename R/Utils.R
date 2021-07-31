@@ -120,26 +120,29 @@ dataAug <- function(imgSet,nr,nc,nVFlip,nHFlip,nShift,maxShift)
       }
    }
 
-##    if (nHFlip > 0) {
-##       for (i in 1:nHFlip) {
-##          j <- sample(1:nr)
-##          img <- matrix(imgSet[j,],byrow=TRUE,nrow=nr)
-##          tmp <- matrix(img[,nc:1],byrow=TRUE,nrow=1)
-##          res <- rbind(res,tmp)
-##       }
-##    }
+   if (nHFlip > 0) {
+      for (i in 1:nHFlip) {
+         j <- sample(1:nr)
+         img <- imgSet[j,]
+         img <- unlist(img)
+         img <- matrix(img,byrow=TRUE,nrow=nr)
+         tmp <- matrix(img[,nc:1],TRUE,nrow=1)
+         res <- rbind(res,tmp)
+      }
+   }
 
-##    if (maxShift > 0) {
-##       b <- maxShift
-##       zeros <- matrix(rep(0,b*nc,ncol=nc))
-##       for (i in 1:nHFlip) {
-##          img1 <- rbind(tmp,img,tmp)
-##          for (i in seq(1,nShift,1)) {
-##             r <- sample(-b:b,1) - 1
-##             tmp <- img1[(1+r):(nc+r),]
-##             res <- rbind(res,tmp)
-##          }
-##       }
+   if (maxShift > 0) {
+      b <- maxShift
+      zeros <- matrix(rep(0,b*nc,ncol=nc))
+      for (i in 1:nHFlip) {
+         img1 <- rbind(tmp,img,tmp)
+         for (i in seq(1,nShift,1)) {
+            r <- sample(-b:b,1) - 1
+            tmp <- img1[(1+r):(nc+r),]
+            res <- rbind(res,tmp)
+         }
+      }
+   }
 
    res
 }
