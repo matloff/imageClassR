@@ -112,12 +112,14 @@ findEndpointsOneImg <- function(img)
 
 dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0) 
 {
-   outIdxs <- NULL  # save to create augmented data frame later
+   # outIdxs will record the indices of the augmented rows back in the
+   # original image set
+   outIdxs <- NULL  
    nImgs <- nrow(imgSet)
    ycol <- which(yName == names(imgSet))
    imgs <- imgSet[,-ycol]
 
-   outPixels <- NULL
+   outPixels <- NULL  # will be the augmented image set, minus labels
 
    if (nVFlip > 0) {
       augIdxs <- sample(1:nImgs,nVFlip,replace=TRUE)
@@ -148,25 +150,46 @@ dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0)
    }
 
    if (maxShift > 0) {
+   
+      if (nShift == 0) stop('nShift = 0')
+      if (maxShift >= min(nr,nc))  stop('cannot shift more than iaage size')
+
       # basic idea:  the shift will result in 0s in the portion of the
       # matrix "vacated" by the shift; handle this by creating a
       # supermatrix with 0s built in, then shift the original matrix
       # within it
       b <- maxShift
-      zeros <- matrix(rep(0,b*nc,ncol=nc))
-      for (i in 1:nHFlip) {
-         img1 <- rbind(tmp,img,tmp)
-         for (i in seq(1,nShift,1)) {
-            r <- sample(-b:b,1) - 1
-            tmp <- img1[(1+r):(nc+r),]
-            outPixels <- rbind(outPixels,tmp)
-         }
+      nShift <- ceiling(nShift / 2)  # 1/2 vert, 1/2 horiz
+      
+      # vertical shift
+      augIdxs <- sample(1:nImgs,nShift,replace=TRUE)
+      outIdxs <- c(outIdxs,augIdxs)
+      for (i in 1:nShift) {
+         zeros <- matrix(rep(0,b*nc),ncol=nc)
+         j <- augIdxs[i]
+         img <- imgs[j,]
+         img <- unlist(img)  
+         img <- matrix(img,byrow=TRUE,nrow=nr)
+         supermatrix <- rbind(zeros,img,zeros)  
+         # loc of orig image in supermatrix
+         firstRealRow <- 1+b
+         lastRealRow <- nr+b
+         # random amount of shift
+         bb <- -b:b
+         bb[b+1]
+         bb <- bb[-(b+1)]  # remove 0 case
+         r <- sample(bb,1) 
+         # shift within supermatrix, extract region of original image
+         tmp <- supermatrix[(firstRealRow+r):(lastRealRow+r),]
+         tmp <- matrix(t(tmp),nrow=1)
+         outPixels <- rbind(outPixels,tmp)
       }
    }
 
    outDF <- as.data.frame(outPixels)
    outDF[[yName]] <- imgSet[outIdxs,ycol]
    names(outDF) <- names(imgSet)
+   outDF <- rbind(outDF,imgSet)
    outDF
 }
 
