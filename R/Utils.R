@@ -99,37 +99,51 @@ findEndpointsOneImg <- function(img)
 # arguments:
 
 
-#    img: image, a matrix
+#    imgSet: data frame, one image per row
+#    yName: name of column with labels
 #    nVFlip: number of vertical flips
 #    nHFlip: number of horizontal flips
 #    nShift: number of shifts; h,v done separately
 #    maxShift: for b, h,v shift each random from [-b,b]
 
+# value:
+
+#    augmented data frame
+
 dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0) 
 {
-   res <- NULL
+   outIdxs <- NULL  # save to create augmented data frame later
+   nImgs <- nrow(imgSet)
+   ycol <- which(yName == names(imgSet))
+   imgs <- imgSet[,-ycol]
+
+   outPixels <- NULL
 
    if (nVFlip > 0) {
+      augIdxs <- sample(1:nImgs,nVFlip,replace=TRUE)
+      outIdxs <- c(outIdxs,augIdxs)
       for (i in 1:nVFlip) {
-         j <- sample(1:nr,1)
-         img <- imgSet[j,]
-         img <- unlist(img)  # imgSet may be a data frame
+         j <- augIdxs[i]
+         img <- imgs[j,]
+         img <- unlist(img)  
          img <- matrix(img,byrow=TRUE,nrow=nr)  # images in row-major
          img <- img[nr:1,]
          tmp <- matrix(t(img),nrow=1)
-         res <- rbind(res,tmp)
+         outPixels <- rbind(outPixels,tmp)
       }
    }
 
    if (nHFlip > 0) {
+      augIdxs <- sample(1:nImgs,nHFlip,replace=TRUE)
+      outIdxs <- c(outIdxs,augIdxs)
       for (i in 1:nHFlip) {
-         j <- sample(1:nr,1)
-         img <- imgSet[j,]
+         j <- augIdxs[i]
+         img <- imgs[j,]
          img <- unlist(img)
          img <- matrix(img,byrow=TRUE,nrow=nr)
          img <- img[,nc:1]
          tmp <- matrix(t(img),nrow=1)
-         res <- rbind(res,tmp)
+         outPixels <- rbind(outPixels,tmp)
       }
    }
 
@@ -145,12 +159,15 @@ dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0)
          for (i in seq(1,nShift,1)) {
             r <- sample(-b:b,1) - 1
             tmp <- img1[(1+r):(nc+r),]
-            res <- rbind(res,tmp)
+            outPixels <- rbind(outPixels,tmp)
          }
       }
    }
 
-   res
+   outDF <- as.data.frame(outPixels)
+   outDF[[yName]] <- imgSet[outIdxs,ycol]
+   names(outDF) <- names(imgSet)
+   outDF
 }
 
 #######################################################################
