@@ -152,7 +152,7 @@ dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0)
    if (maxShift > 0) {
    
       if (nShift == 0) stop('nShift = 0')
-      if (maxShift >= min(nr,nc))  stop('cannot shift more than iaage size')
+      if (maxShift >= min(nr,nc))  stop('cannot shift more than image size')
 
       # basic idea:  the shift will result in 0s in the portion of the
       # matrix "vacated" by the shift; handle this by creating a
@@ -160,16 +160,22 @@ dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0)
       # within it
       b <- maxShift
       nShift <- ceiling(nShift / 2)  # 1/2 vert, 1/2 horiz
-      
-      # vertical shift
+
+      # determine which images will be shifted; each selected image
+      # will be first shifted vertically, then horizontally
       augIdxs <- sample(1:nImgs,nShift,replace=TRUE)
       outIdxs <- c(outIdxs,augIdxs)
+      
       for (i in 1:nShift) {
-         zeros <- matrix(rep(0,b*nc),ncol=nc)
+
+         # image to be shifted
          j <- augIdxs[i]
          img <- imgs[j,]
          img <- unlist(img)  
          img <- matrix(img,byrow=TRUE,nrow=nr)
+
+         # vertical shift
+         zeros <- matrix(rep(0,b*nc),ncol=nc)
          supermatrix <- rbind(zeros,img,zeros)  
          # loc of orig image in supermatrix
          firstRealRow <- 1+b
@@ -181,6 +187,23 @@ dataAug <- function(imgSet,yName,nr,nc,nVFlip=0,nHFlip=0,nShift=0,maxShift=0)
          r <- sample(bb,1) 
          # shift within supermatrix, extract region of original image
          tmp <- supermatrix[(firstRealRow+r):(lastRealRow+r),]
+         tmp <- matrix(t(tmp),nrow=1)
+         outPixels <- rbind(outPixels,tmp)
+         browser()
+
+         # horizontal shift
+         zeros <- matrix(rep(0,b*nr),ncol=b)
+         supermatrix <- cbind(zeros,img,zeros)  
+         # loc of orig image in supermatrix
+         firstRealCol <- 1+b
+         lastRealCol <- firstRealCol + nc - 1
+         # random amount of shift
+         bb <- -b:b
+         bb[b+1]
+         bb <- bb[-(b+1)]  # remove 0 case
+         r <- sample(bb,1) 
+         # shift within supermatrix, extract region of original image
+         tmp <- supermatrix[,(firstRealCol+r):(lastRealCol+r)]
          tmp <- matrix(t(tmp),nrow=1)
          outPixels <- rbind(outPixels,tmp)
       }
