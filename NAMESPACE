@@ -1,6 +1,20 @@
 
+
+importFrom("graphics", "abline", "matplot", "plot")
+importFrom("stats", "binomial", "coef", "cor", "cov", "glm", "lm",
+             "loglin", "na.omit", "numericDeriv", "predict", "rbinom",
+             "var")
+importFrom("utils", "combn")
+importFrom("sandwich","vcovHC")
+
+S3method(predict,drmlTDAsweep)
+S3method(predict,kerasConv)
+
 export(
    TDAsweepOneImg,TDAsweepImgSet,
-   drmlTDAsweep,drmlMomentsHOG
+   drmlTDAsweep,drmlRLRN,drmlPCA,drmlUMAP,drmlDCT,
+   dimRed,load_image_file,load_label_file,
+   kerasConv,
+   tdaSweepAug
 )
 
