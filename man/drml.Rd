@@ -79,6 +79,8 @@ tdasOut$testAcc
 
 }
 
+}
+
 \author{
 Norm Matloff, Yu-Shih Chen, Melissa Goh
 }
